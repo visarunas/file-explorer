@@ -34,7 +34,7 @@
 			this.pathTextBox = new System.Windows.Forms.TextBox();
 			this.buttonLeft = new System.Windows.Forms.Button();
 			this.buttonRight = new System.Windows.Forms.Button();
-			this.button1 = new System.Windows.Forms.Button();
+			this.buttonBack = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// imageList
@@ -81,14 +81,15 @@
 			this.buttonRight.Text = "button1";
 			this.buttonRight.UseVisualStyleBackColor = true;
 			// 
-			// button1
+			// buttonBack
 			// 
-			this.button1.Location = new System.Drawing.Point(120, 12);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(47, 38);
-			this.button1.TabIndex = 2;
-			this.button1.Text = "back";
-			this.button1.UseVisualStyleBackColor = true;
+			this.buttonBack.Location = new System.Drawing.Point(120, 12);
+			this.buttonBack.Name = "buttonBack";
+			this.buttonBack.Size = new System.Drawing.Size(47, 38);
+			this.buttonBack.TabIndex = 2;
+			this.buttonBack.Text = "back";
+			this.buttonBack.UseVisualStyleBackColor = true;
+			this.buttonBack.Click += new System.EventHandler(this.buttonBack_Click);
 			// 
 			// FileExplorer
 			// 
@@ -96,7 +97,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.Control;
 			this.ClientSize = new System.Drawing.Size(984, 661);
-			this.Controls.Add(this.button1);
+			this.Controls.Add(this.buttonBack);
 			this.Controls.Add(this.buttonRight);
 			this.Controls.Add(this.buttonLeft);
 			this.Controls.Add(this.pathTextBox);
@@ -117,7 +118,7 @@
 		private System.Windows.Forms.TextBox pathTextBox;
 		private System.Windows.Forms.Button buttonLeft;
 		private System.Windows.Forms.Button buttonRight;
-		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.Button buttonBack;
 	}
 }
 

@@ -38,8 +38,7 @@ namespace FileExplorer
 			InitializeComponent();
 
 			Dir = new System.IO.DirectoryInfo(@"C:\Users\Sarunas\Downloads");
-
-			pathTextBox.Text = Dir.ToString();
+			ChangeDirectory(Dir.ToString());
 
 			listView.LargeImageList = imageList;
 			listView.View = View.LargeIcon;
@@ -61,35 +60,26 @@ namespace FileExplorer
 			ListViewItem item;
 			listView.BeginUpdate();
 
-			// For each file in the c:\ directory, create a ListViewItem
-			// and set the icon to the icon extracted from the file.
 			foreach (System.IO.FileInfo file in Dir.GetFiles())
 			{
-				// Set a default icon for the file.
-				Icon iconForFile = SystemIcons.WinLogo;
+				//Icon iconForFile = SystemIcons.WinLogo;
 
-				item = new ListViewItem(file.Name, 1);
-				iconForFile = Icon.ExtractAssociatedIcon(file.FullName);
+				item = new ListViewItem(file.Name);
 
-				// Check to see if the image collection contains an image
-				// for this extension, using the extension as a key.
 				if (!imageList.Images.ContainsKey(file.Extension))
 				{
-					// If not, add the image to the image list.
-					iconForFile = System.Drawing.Icon.ExtractAssociatedIcon(file.FullName);
-					imageList.Images.Add(file.Extension, iconForFile);
+					Icon iconForFile = Icon.ExtractAssociatedIcon(file.FullName);
+					imageList.Images.Add(file.Extension, iconForFile);			//TODO if Extension unknown
 				}
 				item.ImageKey = file.Extension;
 				listView.Items.Add(item);
 			}
 
+			imageList.Images.Add("dir", SystemIcons.Hand);
 			foreach (System.IO.DirectoryInfo dir in Dir.GetDirectories())
 			{
-				// Set a default icon for the file.
-				Icon iconForFile = SystemIcons.WinLogo;
-
-				item = new ListViewItem(dir.Name, 1);
-				item.ImageKey = dir.Extension;
+				item = new ListViewItem(dir.Name);
+				item.ImageKey = "dir";
 				listView.Items.Add(item);
 			}
 
@@ -109,11 +99,28 @@ namespace FileExplorer
 		{
 			ListView.SelectedListViewItemCollection itemCollection = listView.SelectedItems;
 			ListViewItem item = itemCollection[0];
-			//Console.WriteLine(Dir + item.Text);
-			fileOperator.OpenFile(Dir + item.Text);
-
+			if (item.ImageKey == "dir")
+			{
+				ChangeDirectory(Dir.ToString() + item.Text);
+			}
+			else
+			{
+				fileOperator.OpenFile(Dir + item.Text);
+			}
 		}
 
+		public void ChangeDirectory(string path)
+		{
+			pathTextBox.Text = path;
+			pathTextBox_Validated(this, null);
+		}
 
+		private void buttonBack_Click(object sender, EventArgs e)
+		{
+			string path = Dir.ToString();
+			path = path.Remove(path.LastIndexOf('\\'));
+			path = path.Remove(path.LastIndexOf('\\'));
+			ChangeDirectory(path);
+		}
 	}
 }
