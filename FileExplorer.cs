@@ -15,14 +15,25 @@ namespace FileExplorer
 	{
 
 		//public string pathText { get; set; }
-		System.IO.DirectoryInfo dir = new System.IO.DirectoryInfo(@"C:\Users\Sarunas\Downloads");
+		System.IO.DirectoryInfo Dir {
+			get {
+				return Dir;
+			}
+
+			set {
+
+			}
+		}
+				
 		private FileOperator fileOperator;
 
 		public FileExplorer()
 		{
 			InitializeComponent();
 
-			pathTextBox.Text = dir.ToString();
+			Dir = new System.IO.DirectoryInfo(@"C:\Users\Sarunas\Downloads");
+
+			pathTextBox.Text = Dir.ToString();
 
 			listView.LargeImageList = imageList;
 			listView.View = View.LargeIcon;
@@ -38,7 +49,7 @@ namespace FileExplorer
 
 		private void pathTextBox_Validated(object sender, EventArgs e)
 		{
-			dir = new System.IO.DirectoryInfo(pathTextBox.Text);
+			Dir = new System.IO.DirectoryInfo(pathTextBox.Text);
 
 			listView.Clear();
 			ListViewItem item;
@@ -46,7 +57,7 @@ namespace FileExplorer
 
 			// For each file in the c:\ directory, create a ListViewItem
 			// and set the icon to the icon extracted from the file.
-			foreach (System.IO.FileInfo file in dir.GetFiles())
+			foreach (System.IO.FileInfo file in Dir.GetFiles())
 			{
 				// Set a default icon for the file.
 				Icon iconForFile = SystemIcons.WinLogo;
@@ -81,8 +92,8 @@ namespace FileExplorer
 		{
 			ListView.SelectedListViewItemCollection itemCollection = listView.SelectedItems;
 			ListViewItem item = itemCollection[0];
-			//Console.WriteLine(dir + item.Text);
-			fileOperator.OpenFile(dir + item.Name);
+			//Console.WriteLine(Dir + item.Text);
+			fileOperator.OpenFile(Dir + item.Text);
 
 		}
 
