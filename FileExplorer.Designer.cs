@@ -101,6 +101,7 @@
 			this.Controls.Add(this.buttonLeft);
 			this.Controls.Add(this.pathTextBox);
 			this.Controls.Add(this.listView);
+			this.DoubleBuffered = true;
 			this.MinimumSize = new System.Drawing.Size(500, 250);
 			this.Name = "FileExplorer";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
