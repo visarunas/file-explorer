@@ -14,14 +14,20 @@ namespace FileExplorer
 	public partial class FileExplorer : Form
 	{
 
-		//public string pathText { get; set; }
-		System.IO.DirectoryInfo Dir {
+		private System.IO.DirectoryInfo _dir;
+		public System.IO.DirectoryInfo Dir {
 			get {
-				return Dir;
+				return _dir;
 			}
-
 			set {
-
+				if (value.ToString().Last() == '\\')
+				{
+					value = _dir;
+				}
+				else
+				{
+					_dir = new System.IO.DirectoryInfo(value.ToString() + @"\");
+				}
 			}
 		}
 				
@@ -57,6 +63,26 @@ namespace FileExplorer
 
 			// For each file in the c:\ directory, create a ListViewItem
 			// and set the icon to the icon extracted from the file.
+			foreach (System.IO.FileInfo file in Dir.GetFiles())
+			{
+				// Set a default icon for the file.
+				Icon iconForFile = SystemIcons.WinLogo;
+
+				item = new ListViewItem(file.Name, 1);
+				iconForFile = Icon.ExtractAssociatedIcon(file.FullName);
+
+				// Check to see if the image collection contains an image
+				// for this extension, using the extension as a key.
+				if (!imageList.Images.ContainsKey(file.Extension))
+				{
+					// If not, add the image to the image list.
+					iconForFile = System.Drawing.Icon.ExtractAssociatedIcon(file.FullName);
+					imageList.Images.Add(file.Extension, iconForFile);
+				}
+				item.ImageKey = file.Extension;
+				listView.Items.Add(item);
+			}
+
 			foreach (System.IO.FileInfo file in Dir.GetFiles())
 			{
 				// Set a default icon for the file.
