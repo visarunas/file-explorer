@@ -41,8 +41,20 @@ namespace FileExplorer
 			ChangeDirectory(Dir.ToString());
 
 			listView.LargeImageList = imageList;
-			listView.View = View.LargeIcon;
+			listView.SmallImageList = imageList;
 
+			bool largeList = false;
+			if (largeList)
+			{
+				listView.View = View.LargeIcon;
+			}
+			else
+			{
+				
+				listView.View = View.Details;
+			}
+
+			
 			pathTextBox_Validated(this, null);
 			//pathTextBox.Validated += new EventHandler(pathTextBox_Validated);
 
@@ -57,29 +69,37 @@ namespace FileExplorer
 			Dir = new System.IO.DirectoryInfo(pathTextBox.Text);
 
 			listView.Clear();
+
+			imageList.Images.Add("dir", SystemIcons.Hand);
+
+			var cm = new ColumnHeader();
+			cm.Text = "Name";
+			cm.Width = 300;
+			imageList.ImageSize = new Size(20, 20);
+			listView.Columns.Add(cm);
+
 			ListViewItem item;
 			listView.BeginUpdate();
 
-			foreach (System.IO.FileInfo file in Dir.GetFiles())
+			foreach (System.IO.FileSystemInfo file in Dir.GetFileSystemInfos())
 			{
-				//Icon iconForFile = SystemIcons.WinLogo;
-
 				item = new ListViewItem(file.Name);
-
-				if (!imageList.Images.ContainsKey(file.Extension))
+				if (file.Attributes.HasFlag(System.IO.FileAttributes.Directory))
 				{
-					Icon iconForFile = Icon.ExtractAssociatedIcon(file.FullName);
-					imageList.Images.Add(file.Extension, iconForFile);			//TODO if Extension unknown
+					item.ImageKey = "dir";
 				}
-				item.ImageKey = file.Extension;
-				listView.Items.Add(item);
-			}
+				else
+				{
+					if (!imageList.Images.ContainsKey(file.Name))
+					{
+						Console.WriteLine(file.Extension);
 
-			imageList.Images.Add("dir", SystemIcons.Hand);
-			foreach (System.IO.DirectoryInfo dir in Dir.GetDirectories())
-			{
-				item = new ListViewItem(dir.Name);
-				item.ImageKey = "dir";
+						Icon iconForFile = Icon.ExtractAssociatedIcon(file.FullName);
+						imageList.Images.Add(file.Name, iconForFile);          //TODO if Extension unknown
+					}
+					item.ImageKey = file.Name;
+				}
+
 				listView.Items.Add(item);
 			}
 
