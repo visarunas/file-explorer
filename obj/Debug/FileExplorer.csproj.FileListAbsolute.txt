@@ -1,1 +1,9 @@
 c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\bin\Debug\FileExplorer.exe.config
+c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\bin\Debug\FileExplorer.exe
+c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\bin\Debug\FileExplorer.pdb
+c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\FileExplorer.csprojResolveAssemblyReference.cache
+c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\FileExplorer.Properties.Resources.resources
+c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\FileExplorer.csproj.GenerateResource.Cache
+c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\FileExplorer.exe
+c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\FileExplorer.pdb
+c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\FileExplorer.FileExplorer.resources
