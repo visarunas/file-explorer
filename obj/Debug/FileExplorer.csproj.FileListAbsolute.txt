@@ -1,0 +1,1 @@
+c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\bin\Debug\FileExplorer.exe.config
