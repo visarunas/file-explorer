@@ -23,7 +23,7 @@ namespace FileExplorer
 			set {
 				if (value.ToString().Last() == '\\')
 				{
-					value = dir;
+					dir = value;
 				}
 				else
 				{
@@ -38,7 +38,7 @@ namespace FileExplorer
 		{
 			InitializeComponent();
 
-			Dir = new System.IO.DirectoryInfo(@"c:\users");
+			Dir = new System.IO.DirectoryInfo(@"c:\users\Sarunas\Desktop");
 			ChangeDirectory(Dir.ToString());
 
 			listView.LargeImageList = imageList;
@@ -55,9 +55,6 @@ namespace FileExplorer
 				listView.View = View.Details;
 			}
 
-			
-			//pathTextBox_Validated(this, null);
-			//pathTextBox.Validated += new EventHandler(pathTextBox_Validated);
 
 			fileOperator = new FileOperator();
 
@@ -70,39 +67,39 @@ namespace FileExplorer
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 
-			Dir = new System.IO.DirectoryInfo(pathTextBox.Text);
-			Console.WriteLine(Dir.ToString());
 			listView.Clear();
 
 			var cm = new ColumnHeader();
 			cm.Text = "Name";
 			cm.Width = 300;
-			imageList.ImageSize = new Size(20, 20);
+			imageList.ImageSize = new Size(32, 32);
 			listView.Columns.Add(cm);
 
 			ListViewFileItem item;
 
 			listView.BeginUpdate();
+			
 
 			foreach (System.IO.FileSystemInfo file in Dir.GetFileSystemInfos())
 			{
+				string imageKey = file.Name;
 				item = new ListViewFileItem(file.Name);
 				item.Attributes = file.Attributes;
 				if (file.Attributes.HasFlag(System.IO.FileAttributes.Directory))
 				{
 
 					Icon iconForFile = IconReader.GetFolderIcon(file.FullName, IconReader.IconSize.Large, IconReader.FolderType.Open);
-					imageList.Images.Add(file.Name, iconForFile);          //TODO if Extension unknown
+					imageList.Images.Add(imageKey, iconForFile);          //TODO if Extension unknown
 				}
 				else
 				{
-					if (!imageList.Images.ContainsKey(file.Name))
+					if (!imageList.Images.ContainsKey(imageKey))
 					{
 						Icon iconForFile = IconReader.GetFileIcon(file.FullName, IconReader.IconSize.Large, false);
-						imageList.Images.Add(file.Name, iconForFile);          //TODO if Extension unknown
+						imageList.Images.Add(imageKey, iconForFile);          //TODO if Extension unknown
 					}
 				}
-				item.ImageKey = file.Name;
+				item.ImageKey = imageKey;
 
 				listView.Items.Add(item);
 			}
@@ -128,7 +125,7 @@ namespace FileExplorer
 
 			if (item.Attributes.HasFlag(System.IO.FileAttributes.Directory))
 			{
-				ChangeDirectory(Dir.ToString() + item.Text);
+				ChangeDirectory(Dir.ToString() + item.Text + '\\');
 			}
 			else
 			{
@@ -138,16 +135,15 @@ namespace FileExplorer
 
 		public void ChangeDirectory(string path)
 		{
-			pathTextBox.Text = path;
+			Dir = new System.IO.DirectoryInfo(path);
+			Console.WriteLine("Changing Directory to: " + Dir.ToString());
+			pathTextBox.Text = Dir.ToString();
 			pathTextBox_Validated(this, null);
 		}
 
 		private void buttonBack_Click(object sender, EventArgs e)
 		{
-			string path = Dir.ToString();
-			path = path.Remove(path.LastIndexOf('\\'));
-			path = path.Remove(path.LastIndexOf('\\'));
-			ChangeDirectory(path);
+			ChangeDirectory(Dir.Parent.FullName);
 		}
 
 		private void FileExplorer_FormClosed(object sender, FormClosedEventArgs e)

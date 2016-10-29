@@ -35,6 +35,8 @@
 			this.buttonLeft = new System.Windows.Forms.Button();
 			this.buttonRight = new System.Windows.Forms.Button();
 			this.buttonBack = new System.Windows.Forms.Button();
+			this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+			this.searchTextBox = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
 			// 
 			// imageList
@@ -45,6 +47,9 @@
 			// 
 			// listView
 			// 
+			this.listView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.listView.Location = new System.Drawing.Point(12, 57);
 			this.listView.Name = "listView";
 			this.listView.Size = new System.Drawing.Size(960, 592);
@@ -54,11 +59,14 @@
 			// 
 			// pathTextBox
 			// 
+			this.pathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.pathTextBox.BackColor = System.Drawing.SystemColors.ButtonHighlight;
 			this.pathTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.pathTextBox.Location = new System.Drawing.Point(173, 21);
 			this.pathTextBox.Name = "pathTextBox";
-			this.pathTextBox.Size = new System.Drawing.Size(757, 29);
+			this.pathTextBox.Size = new System.Drawing.Size(505, 29);
 			this.pathTextBox.TabIndex = 1;
 			this.pathTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pathTextBox_KeyDown);
 			this.pathTextBox.Validated += new System.EventHandler(this.pathTextBox_Validated);
@@ -91,19 +99,31 @@
 			this.buttonBack.UseVisualStyleBackColor = true;
 			this.buttonBack.Click += new System.EventHandler(this.buttonBack_Click);
 			// 
+			// searchTextBox
+			// 
+			this.searchTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.searchTextBox.ForeColor = System.Drawing.SystemColors.InactiveCaption;
+			this.searchTextBox.Location = new System.Drawing.Point(715, 21);
+			this.searchTextBox.Name = "searchTextBox";
+			this.searchTextBox.Size = new System.Drawing.Size(257, 29);
+			this.searchTextBox.TabIndex = 3;
+			this.searchTextBox.Text = "Search";
+			this.searchTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
 			// FileExplorer
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.Control;
 			this.ClientSize = new System.Drawing.Size(984, 661);
+			this.Controls.Add(this.searchTextBox);
 			this.Controls.Add(this.buttonBack);
 			this.Controls.Add(this.buttonRight);
 			this.Controls.Add(this.buttonLeft);
 			this.Controls.Add(this.pathTextBox);
 			this.Controls.Add(this.listView);
 			this.DoubleBuffered = true;
-			this.MinimumSize = new System.Drawing.Size(500, 250);
+			this.MinimumSize = new System.Drawing.Size(700, 250);
 			this.Name = "FileExplorer";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "File Explorer";
@@ -120,6 +140,8 @@
 		private System.Windows.Forms.Button buttonLeft;
 		private System.Windows.Forms.Button buttonRight;
 		private System.Windows.Forms.Button buttonBack;
+		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+		private System.Windows.Forms.TextBox searchTextBox;
 	}
 }
 
