@@ -79,12 +79,14 @@ namespace FileExplorer
 			imageList.ImageSize = new Size(20, 20);
 			listView.Columns.Add(cm);
 
-			ListViewItem item;
+			ListViewFileItem item;
+
 			listView.BeginUpdate();
 
 			foreach (System.IO.FileSystemInfo file in Dir.GetFileSystemInfos())
 			{
-				item = new ListViewItem(file.Name);
+				item = new ListViewFileItem(file.Name);
+				item.Attributes = file.Attributes;
 				if (file.Attributes.HasFlag(System.IO.FileAttributes.Directory))
 				{
 
@@ -119,8 +121,9 @@ namespace FileExplorer
 		private void listView_DoubleClick(object sender, EventArgs e)
 		{
 			ListView.SelectedListViewItemCollection itemCollection = listView.SelectedItems;
-			ListViewItem item = itemCollection[0];
-			if (item.ImageKey == "dir")
+			ListViewFileItem item = (ListViewFileItem)itemCollection[0];
+
+			if (item.Attributes.HasFlag(System.IO.FileAttributes.Directory))
 			{
 				ChangeDirectory(Dir.ToString() + item.Text);
 			}
