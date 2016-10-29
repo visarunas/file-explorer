@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Etier.IconHelper;
 
 
 namespace FileExplorer
@@ -70,7 +71,7 @@ namespace FileExplorer
 
 			listView.Clear();
 
-			imageList.Images.Add("dir", SystemIcons.Hand);
+			//imageList.Images.Add("dir", SystemIcons.Hand);
 
 			var cm = new ColumnHeader();
 			cm.Text = "Name";
@@ -86,7 +87,7 @@ namespace FileExplorer
 				item = new ListViewItem(file.Name);
 				if (file.Attributes.HasFlag(System.IO.FileAttributes.Directory))
 				{
-					item.ImageKey = "dir";
+					Icon iconForFile = IconReader.GetFolderIcon(0, IconReader.FolderType.Closed);
 				}
 				else
 				{
@@ -94,7 +95,7 @@ namespace FileExplorer
 					{
 						Console.WriteLine(file.Extension);
 
-						Icon iconForFile = Icon.ExtractAssociatedIcon(file.FullName);
+						Icon iconForFile = IconReader.GetFileIcon(file.FullName, 0, false);
 						imageList.Images.Add(file.Name, iconForFile);          //TODO if Extension unknown
 					}
 					item.ImageKey = file.Name;

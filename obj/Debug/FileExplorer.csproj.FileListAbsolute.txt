@@ -7,3 +7,5 @@ c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer
 c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\FileExplorer.exe
 c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\FileExplorer.pdb
 c:\users\sarunas\documents\visual studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\FileExplorer.FileExplorer.resources
+C:\Users\Sarunas\Documents\Visual Studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\Interop.Shell32.dll
+C:\Users\Sarunas\Documents\Visual Studio 2015\Projects\FileExplorer\FileExplorer\obj\Debug\FileExplorer.csproj.ResolveComReference.cache
