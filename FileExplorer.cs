@@ -87,19 +87,19 @@ namespace FileExplorer
 				item = new ListViewItem(file.Name);
 				if (file.Attributes.HasFlag(System.IO.FileAttributes.Directory))
 				{
-					Icon iconForFile = IconReader.GetFolderIcon(0, IconReader.FolderType.Closed);
+
+					Icon iconForFile = IconReader.GetFolderIcon(file.FullName, IconReader.IconSize.Large, IconReader.FolderType.Open);
+					imageList.Images.Add(file.Name, iconForFile);          //TODO if Extension unknown
 				}
 				else
 				{
 					if (!imageList.Images.ContainsKey(file.Name))
 					{
-						Console.WriteLine(file.Extension);
-
-						Icon iconForFile = IconReader.GetFileIcon(file.FullName, 0, false);
+						Icon iconForFile = IconReader.GetFileIcon(file.FullName, IconReader.IconSize.Large, false);
 						imageList.Images.Add(file.Name, iconForFile);          //TODO if Extension unknown
 					}
-					item.ImageKey = file.Name;
 				}
+				item.ImageKey = file.Name;
 
 				listView.Items.Add(item);
 			}
@@ -142,6 +142,12 @@ namespace FileExplorer
 			path = path.Remove(path.LastIndexOf('\\'));
 			path = path.Remove(path.LastIndexOf('\\'));
 			ChangeDirectory(path);
+		}
+
+		private void FileExplorer_FormClosed(object sender, FormClosedEventArgs e)
+		{
+			imageList.Dispose();
+			listView.Dispose();
 		}
 	}
 }

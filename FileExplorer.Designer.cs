@@ -107,6 +107,7 @@
 			this.Name = "FileExplorer";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "File Explorer";
+			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FileExplorer_FormClosed);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
