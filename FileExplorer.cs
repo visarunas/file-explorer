@@ -8,26 +8,26 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Etier.IconHelper;
-
+using System.Diagnostics;
 
 namespace FileExplorer
 {
 	public partial class FileExplorer : Form
 	{
 
-		private System.IO.DirectoryInfo _dir;
+		private System.IO.DirectoryInfo dir;
 		public System.IO.DirectoryInfo Dir {
 			get {
-				return _dir;
+				return dir;
 			}
 			set {
 				if (value.ToString().Last() == '\\')
 				{
-					value = _dir;
+					value = dir;
 				}
 				else
 				{
-					_dir = new System.IO.DirectoryInfo(value.ToString() + @"\");
+					dir = new System.IO.DirectoryInfo(value.ToString() + @"\");
 				}
 			}
 		}
@@ -38,7 +38,7 @@ namespace FileExplorer
 		{
 			InitializeComponent();
 
-			Dir = new System.IO.DirectoryInfo(@"C:\Users\Sarunas\Downloads");
+			Dir = new System.IO.DirectoryInfo(@"c:\users");
 			ChangeDirectory(Dir.ToString());
 
 			listView.LargeImageList = imageList;
@@ -56,7 +56,7 @@ namespace FileExplorer
 			}
 
 			
-			pathTextBox_Validated(this, null);
+			//pathTextBox_Validated(this, null);
 			//pathTextBox.Validated += new EventHandler(pathTextBox_Validated);
 
 			fileOperator = new FileOperator();
@@ -67,11 +67,12 @@ namespace FileExplorer
 
 		private void pathTextBox_Validated(object sender, EventArgs e)
 		{
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
 			Dir = new System.IO.DirectoryInfo(pathTextBox.Text);
-
+			Console.WriteLine(Dir.ToString());
 			listView.Clear();
-
-			//imageList.Images.Add("dir", SystemIcons.Hand);
 
 			var cm = new ColumnHeader();
 			cm.Text = "Name";
@@ -107,7 +108,9 @@ namespace FileExplorer
 			}
 
 			listView.EndUpdate();
-			
+
+			sw.Stop();
+			Console.WriteLine("Elapsed={0}", sw.Elapsed);
 		}
 
 		private void pathTextBox_KeyDown(object sender, KeyEventArgs e)
