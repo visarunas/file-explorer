@@ -55,6 +55,7 @@
     <Compile Include="FileOperator.cs" />
     <Compile Include="IconHelper.cs" />
     <Compile Include="IconListManager.cs" />
+    <Compile Include="ListViewColumnManager.cs" />
     <Compile Include="ListViewFileItem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

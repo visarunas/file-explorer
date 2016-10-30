@@ -18,5 +18,6 @@ namespace FileExplorer
 		{
 			System.Diagnostics.Process.Start(filePath);
 		}
+
 	}
 }

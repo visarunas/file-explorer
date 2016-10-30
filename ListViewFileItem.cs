@@ -11,9 +11,6 @@ namespace FileExplorer
 	{
 		public System.IO.FileAttributes Attributes { get; set; }
 
-		public ListViewFileItem(string text) : base(text)
-		{
-
-		}
+		public ListViewFileItem(string text) : base(text) { }
 	}
 }

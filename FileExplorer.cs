@@ -55,10 +55,9 @@ namespace FileExplorer
 				listView.View = View.Details;
 			}
 
+			imageList.ImageSize = new Size(32, 32);
 
 			fileOperator = new FileOperator();
-
-
 
 		}
 
@@ -69,11 +68,11 @@ namespace FileExplorer
 
 			listView.Clear();
 
-			var cm = new ColumnHeader();
-			cm.Text = "Name";
-			cm.Width = 300;
-			imageList.ImageSize = new Size(32, 32);
-			listView.Columns.Add(cm);
+			var columnManager = new ListViewColumnManager(listView);
+
+			columnManager.addColumn("Name", 400);
+
+
 
 			ListViewFileItem item;
 
@@ -150,6 +149,14 @@ namespace FileExplorer
 		{
 			imageList.Dispose();
 			listView.Dispose();
+		}
+
+		private void listView_MouseClick(object sender, MouseEventArgs e)
+		{
+			if (e.Button == MouseButtons.Right)
+			{
+				
+			}
 		}
 	}
 }
