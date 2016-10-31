@@ -63,6 +63,9 @@ namespace FileExplorer
 
 		private void pathTextBox_Validated(object sender, EventArgs e)
 		{
+
+			Debug.WriteLine(imageList.Container.Components.Count.ToString());
+
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 
@@ -71,7 +74,6 @@ namespace FileExplorer
 			var columnManager = new ListViewColumnManager(listView);
 
 			columnManager.addColumn("Name", 400);
-
 
 
 			ListViewFileItem item;
@@ -106,7 +108,8 @@ namespace FileExplorer
 			listView.EndUpdate();
 
 			sw.Stop();
-			Console.WriteLine("Elapsed={0}", sw.Elapsed);
+			Debug.WriteLine("Elapsed={0}", sw.Elapsed);
+
 		}
 
 		private void pathTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -135,7 +138,7 @@ namespace FileExplorer
 		public void ChangeDirectory(string path)
 		{
 			Dir = new System.IO.DirectoryInfo(path);
-			Console.WriteLine("Changing Directory to: " + Dir.ToString());
+			Debug.WriteLine("Changing Directory to: " + Dir.ToString());
 			pathTextBox.Text = Dir.ToString();
 			pathTextBox_Validated(this, null);
 		}
