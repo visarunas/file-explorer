@@ -31,12 +31,15 @@ namespace FileExplorer
 				}
 			}
 		}
-				
+
+		private PathList<string> pathList;
 		private FileOperator fileOperator;
 
 		public FileExplorer()
 		{
 			InitializeComponent();
+
+			pathList = new PathList<string>();
 
 			Dir = new System.IO.DirectoryInfo(@"c:\users\Sarunas\Desktop");
 			ChangeDirectory(Dir.ToString());
@@ -59,12 +62,14 @@ namespace FileExplorer
 
 			fileOperator = new FileOperator();
 
+			
+
 		}
 
 		private void pathTextBox_Validated(object sender, EventArgs e)
 		{
 
-			Debug.WriteLine(imageList.Container.Components.Count.ToString());
+			//Debug.WriteLine(imageList.Container.Components.Count.ToString());
 
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
@@ -139,6 +144,7 @@ namespace FileExplorer
 		{
 			Dir = new System.IO.DirectoryInfo(path);
 			Debug.WriteLine("Changing Directory to: " + Dir.ToString());
+			pathList.AddNext(path);
 			pathTextBox.Text = Dir.ToString();
 			pathTextBox_Validated(this, null);
 		}
@@ -160,6 +166,20 @@ namespace FileExplorer
 			{
 				
 			}
+		}
+
+		private void buttonUndo_Click(object sender, EventArgs e)
+		{
+			Dir = new System.IO.DirectoryInfo(pathList.Undo());
+			pathTextBox.Text = Dir.ToString();
+			pathTextBox_Validated(this, null);
+		}
+
+		private void buttonRedo_Click(object sender, EventArgs e)
+		{
+			Dir = new System.IO.DirectoryInfo(pathList.Redo());
+			pathTextBox.Text = Dir.ToString();
+			pathTextBox_Validated(this, null);
 		}
 	}
 }

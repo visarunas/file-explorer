@@ -31,15 +31,16 @@
 			this.components = new System.ComponentModel.Container();
 			this.imageList = new System.Windows.Forms.ImageList(this.components);
 			this.listView = new System.Windows.Forms.ListView();
-			this.pathTextBox = new System.Windows.Forms.TextBox();
-			this.buttonLeft = new System.Windows.Forms.Button();
-			this.buttonRight = new System.Windows.Forms.Button();
-			this.buttonBack = new System.Windows.Forms.Button();
-			this.searchTextBox = new System.Windows.Forms.TextBox();
 			this.viewListContext = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.pathTextBox = new System.Windows.Forms.TextBox();
+			this.buttonUndo = new System.Windows.Forms.Button();
+			this.buttonRedo = new System.Windows.Forms.Button();
+			this.buttonBack = new System.Windows.Forms.Button();
+			this.searchTextBox = new System.Windows.Forms.TextBox();
+			this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
 			this.viewListContext.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -63,6 +64,33 @@
 			this.listView.DoubleClick += new System.EventHandler(this.listView_DoubleClick);
 			this.listView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listView_MouseClick);
 			// 
+			// viewListContext
+			// 
+			this.viewListContext.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cutToolStripMenuItem,
+            this.copyToolStripMenuItem,
+            this.pasteToolStripMenuItem});
+			this.viewListContext.Name = "viewListContext";
+			this.viewListContext.Size = new System.Drawing.Size(103, 70);
+			// 
+			// cutToolStripMenuItem
+			// 
+			this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
+			this.cutToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
+			this.cutToolStripMenuItem.Text = "Cut";
+			// 
+			// copyToolStripMenuItem
+			// 
+			this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
+			this.copyToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
+			this.copyToolStripMenuItem.Text = "Copy";
+			// 
+			// pasteToolStripMenuItem
+			// 
+			this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
+			this.pasteToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
+			this.pasteToolStripMenuItem.Text = "Paste";
+			// 
 			// pathTextBox
 			// 
 			this.pathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -77,23 +105,25 @@
 			this.pathTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pathTextBox_KeyDown);
 			this.pathTextBox.Validated += new System.EventHandler(this.pathTextBox_Validated);
 			// 
-			// buttonLeft
+			// buttonUndo
 			// 
-			this.buttonLeft.Location = new System.Drawing.Point(12, 12);
-			this.buttonLeft.Name = "buttonLeft";
-			this.buttonLeft.Size = new System.Drawing.Size(47, 38);
-			this.buttonLeft.TabIndex = 2;
-			this.buttonLeft.Text = "button1";
-			this.buttonLeft.UseVisualStyleBackColor = true;
+			this.buttonUndo.Location = new System.Drawing.Point(12, 12);
+			this.buttonUndo.Name = "buttonUndo";
+			this.buttonUndo.Size = new System.Drawing.Size(47, 38);
+			this.buttonUndo.TabIndex = 2;
+			this.buttonUndo.Text = "<<";
+			this.buttonUndo.UseVisualStyleBackColor = true;
+			this.buttonUndo.Click += new System.EventHandler(this.buttonUndo_Click);
 			// 
-			// buttonRight
+			// buttonRedo
 			// 
-			this.buttonRight.Location = new System.Drawing.Point(65, 12);
-			this.buttonRight.Name = "buttonRight";
-			this.buttonRight.Size = new System.Drawing.Size(47, 38);
-			this.buttonRight.TabIndex = 2;
-			this.buttonRight.Text = "button1";
-			this.buttonRight.UseVisualStyleBackColor = true;
+			this.buttonRedo.Location = new System.Drawing.Point(65, 12);
+			this.buttonRedo.Name = "buttonRedo";
+			this.buttonRedo.Size = new System.Drawing.Size(47, 38);
+			this.buttonRedo.TabIndex = 2;
+			this.buttonRedo.Text = ">>";
+			this.buttonRedo.UseVisualStyleBackColor = true;
+			this.buttonRedo.Click += new System.EventHandler(this.buttonRedo_Click);
 			// 
 			// buttonBack
 			// 
@@ -118,33 +148,6 @@
 			this.searchTextBox.Text = "Search";
 			this.searchTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
-			// viewListContext
-			// 
-			this.viewListContext.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cutToolStripMenuItem,
-            this.copyToolStripMenuItem,
-            this.pasteToolStripMenuItem});
-			this.viewListContext.Name = "viewListContext";
-			this.viewListContext.Size = new System.Drawing.Size(103, 70);
-			// 
-			// copyToolStripMenuItem
-			// 
-			this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-			this.copyToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
-			this.copyToolStripMenuItem.Text = "Copy";
-			// 
-			// pasteToolStripMenuItem
-			// 
-			this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
-			this.pasteToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
-			this.pasteToolStripMenuItem.Text = "Paste";
-			// 
-			// cutToolStripMenuItem
-			// 
-			this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
-			this.cutToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
-			this.cutToolStripMenuItem.Text = "Cut";
-			// 
 			// FileExplorer
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -153,8 +156,8 @@
 			this.ClientSize = new System.Drawing.Size(984, 661);
 			this.Controls.Add(this.searchTextBox);
 			this.Controls.Add(this.buttonBack);
-			this.Controls.Add(this.buttonRight);
-			this.Controls.Add(this.buttonLeft);
+			this.Controls.Add(this.buttonRedo);
+			this.Controls.Add(this.buttonUndo);
 			this.Controls.Add(this.pathTextBox);
 			this.Controls.Add(this.listView);
 			this.DoubleBuffered = true;
@@ -173,14 +176,15 @@
 		private System.Windows.Forms.ImageList imageList;
 		private System.Windows.Forms.ListView listView;
 		private System.Windows.Forms.TextBox pathTextBox;
-		private System.Windows.Forms.Button buttonLeft;
-		private System.Windows.Forms.Button buttonRight;
+		private System.Windows.Forms.Button buttonUndo;
+		private System.Windows.Forms.Button buttonRedo;
 		private System.Windows.Forms.Button buttonBack;
 		private System.Windows.Forms.TextBox searchTextBox;
 		private System.Windows.Forms.ContextMenuStrip viewListContext;
 		private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
+		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
 	}
 }
 
