@@ -9,14 +9,17 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Etier.IconHelper;
 using System.Diagnostics;
+using System.IO;
+using System.Threading;
 
 namespace FileExplorer
 {
 	public partial class FileExplorer : Form
 	{
+		public event EventHandler OnDirectoryChanged;
 
-		private System.IO.DirectoryInfo dir;
-		public System.IO.DirectoryInfo Dir {
+		private DirectoryInfo dir;
+		public DirectoryInfo Dir {
 			get {
 				return dir;
 			}
@@ -27,21 +30,26 @@ namespace FileExplorer
 				}
 				else
 				{
-					dir = new System.IO.DirectoryInfo(value.ToString() + @"\");
+					dir = new DirectoryInfo(value.ToString() + @"\");
 				}
+				OnDirectoryChanged?.Invoke(this, new EventArgs());
+				pathTextBox.Text = Dir.ToString();
 			}
 		}
 
-		private PathList<string> pathList;
+		private UndoRedoList<string> pathList;
 		private FileOperator fileOperator;
+		private FileListViewUpdater fileListViewUpdater;
 
 		public FileExplorer()
 		{
 			InitializeComponent();
 
-			pathList = new PathList<string>();
+			//OnDirectoryChanged += pathTextBox_Validated;
 
-			Dir = new System.IO.DirectoryInfo(@"c:\users\Sarunas\Desktop");
+			fileListViewUpdater = new FileListViewUpdater();
+			pathList = new UndoRedoList<string>();
+			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
 			ChangeDirectory(Dir.ToString());
 
 			listView.LargeImageList = imageList;
@@ -62,55 +70,38 @@ namespace FileExplorer
 
 			fileOperator = new FileOperator();
 
+			searchTextBox.GotFocus += searchTextBox_GotFocus;
+			searchTextBox.LostFocus += searchTextBox_LostFocus;
+
 			
 
 		}
 
+
+		private void searchTextBox_GotFocus(object sender, EventArgs e)
+		{
+			if (searchTextBox.Text == "Search")
+			{
+				searchTextBox.ForeColor = Color.Black;
+				searchTextBox.Text = "";
+			}
+		}
+
+		private void searchTextBox_LostFocus(object sender, EventArgs e)
+		{
+			if (searchTextBox.Text == "")
+			{
+				searchTextBox.ForeColor = Color.DarkGray;
+				searchTextBox.Text = "Search";
+			}
+		}
+
 		private void pathTextBox_Validated(object sender, EventArgs e)
 		{
-
-			//Debug.WriteLine(imageList.Container.Components.Count.ToString());
-
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 
-			listView.Clear();
-
-			var columnManager = new ListViewColumnManager(listView);
-
-			columnManager.addColumn("Name", 400);
-
-
-			ListViewFileItem item;
-
-			listView.BeginUpdate();
-			
-
-			foreach (System.IO.FileSystemInfo file in Dir.GetFileSystemInfos())
-			{
-				string imageKey = file.Name;
-				item = new ListViewFileItem(file.Name);
-				item.Attributes = file.Attributes;
-				if (file.Attributes.HasFlag(System.IO.FileAttributes.Directory))
-				{
-
-					Icon iconForFile = IconReader.GetFolderIcon(file.FullName, IconReader.IconSize.Large, IconReader.FolderType.Open);
-					imageList.Images.Add(imageKey, iconForFile);          //TODO if Extension unknown
-				}
-				else
-				{
-					if (!imageList.Images.ContainsKey(imageKey))
-					{
-						Icon iconForFile = IconReader.GetFileIcon(file.FullName, IconReader.IconSize.Large, false);
-						imageList.Images.Add(imageKey, iconForFile);          //TODO if Extension unknown
-					}
-				}
-				item.ImageKey = imageKey;
-
-				listView.Items.Add(item);
-			}
-
-			listView.EndUpdate();
+			ChangeDirectory(pathTextBox.Text);
 
 			sw.Stop();
 			Debug.WriteLine("Elapsed={0}", sw.Elapsed);
@@ -130,7 +121,7 @@ namespace FileExplorer
 			ListView.SelectedListViewItemCollection itemCollection = listView.SelectedItems;
 			ListViewFileItem item = (ListViewFileItem)itemCollection[0];
 
-			if (item.Attributes.HasFlag(System.IO.FileAttributes.Directory))
+			if (item.Attributes.HasFlag(FileAttributes.Directory))
 			{
 				ChangeDirectory(Dir.ToString() + item.Text + '\\');
 			}
@@ -142,11 +133,15 @@ namespace FileExplorer
 
 		public void ChangeDirectory(string path)
 		{
-			Dir = new System.IO.DirectoryInfo(path);
-			Debug.WriteLine("Changing Directory to: " + Dir.ToString());
+			Dir = new DirectoryInfo(path);
+			updateView();
+			Debug.WriteLine("Changed Directory to: " + Dir.ToString());
 			pathList.AddNext(path);
-			pathTextBox.Text = Dir.ToString();
-			pathTextBox_Validated(this, null);
+		}
+
+		private void updateView()
+		{
+			fileListViewUpdater.update(listView, imageList, Dir);
 		}
 
 		private void buttonBack_Click(object sender, EventArgs e)
@@ -170,16 +165,77 @@ namespace FileExplorer
 
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
-			Dir = new System.IO.DirectoryInfo(pathList.Undo());
-			pathTextBox.Text = Dir.ToString();
-			pathTextBox_Validated(this, null);
+			Dir = new DirectoryInfo(pathList.Undo());
+			updateView();
+			Debug.WriteLine("Undo Directory to: " + Dir.ToString());
 		}
 
 		private void buttonRedo_Click(object sender, EventArgs e)
 		{
-			Dir = new System.IO.DirectoryInfo(pathList.Redo());
-			pathTextBox.Text = Dir.ToString();
-			pathTextBox_Validated(this, null);
+			Dir = new DirectoryInfo(pathList.Redo());
+			updateView();
+			Debug.WriteLine("Redo Directory to: " + Dir.ToString());
+		}
+
+		public void SearchFile(string searchName, DirectoryInfo dir)
+		{
+			//Debug.WriteLine(dir.ToString());
+			foreach (FileSystemInfo file in dir.GetFileSystemInfos())
+			{
+				if(file.Name == searchName)
+				{
+					string imageKey = file.Name;
+					ListViewFileItem item = new ListViewFileItem(file.Name);
+					item.Attributes = file.Attributes;
+					if (file.Attributes.HasFlag(FileAttributes.Directory))
+					{
+						Icon iconForFile = IconReader.GetFolderIcon(file.FullName, IconReader.IconSize.Large, IconReader.FolderType.Open);
+						imageList.Images.Add(imageKey, iconForFile);          //TODO if Extension unknown
+					}
+					else
+					{
+						if (!imageList.Images.ContainsKey(imageKey))
+						{
+							Icon iconForFile = IconReader.GetFileIcon(file.FullName, IconReader.IconSize.Large, false);
+							imageList.Images.Add(imageKey, iconForFile);          //TODO if Extension unknown
+						}
+					}
+					item.ImageKey = imageKey;
+					listView.Items.Add(item);
+					//listView.Refresh();
+				}
+
+				if (file.Attributes.HasFlag(FileAttributes.Directory))
+				{
+					SearchFile(searchName, new DirectoryInfo(dir.ToString() + @"/" + file.Name));
+				}
+			}
+		}
+
+		private void searchTextBox_Validated(object sender, EventArgs e)
+		{
+			if (searchTextBox.Text == "Search")
+			{
+				ChangeDirectory(Dir.ToString());
+			}
+			else
+			{
+				listView.Clear();
+				var columnManager = new ListViewColumnManager(listView);
+				columnManager.addColumn("Name", 400);
+				string searchName = searchTextBox.Text;
+
+				listView.BeginUpdate();
+
+				//Thread sThread = new Thread( () => SearchFile(searchName, Dir));
+
+				//sThread.Start();
+				SearchFile(searchName, Dir);
+
+
+				listView.EndUpdate();
+			}
+
 		}
 	}
 }

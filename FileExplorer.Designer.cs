@@ -41,6 +41,7 @@
 			this.buttonBack = new System.Windows.Forms.Button();
 			this.searchTextBox = new System.Windows.Forms.TextBox();
 			this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+			this.folderBrowserDialog2 = new System.Windows.Forms.FolderBrowserDialog();
 			this.viewListContext.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -140,13 +141,14 @@
 			this.searchTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.searchTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.searchTextBox.ForeColor = System.Drawing.SystemColors.InactiveCaption;
+			this.searchTextBox.ForeColor = System.Drawing.Color.DarkGray;
 			this.searchTextBox.Location = new System.Drawing.Point(715, 21);
 			this.searchTextBox.Name = "searchTextBox";
 			this.searchTextBox.Size = new System.Drawing.Size(257, 29);
 			this.searchTextBox.TabIndex = 3;
 			this.searchTextBox.Text = "Search";
 			this.searchTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.searchTextBox.Validated += new System.EventHandler(this.searchTextBox_Validated);
 			// 
 			// FileExplorer
 			// 
@@ -185,6 +187,7 @@
 		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
 		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog2;
 	}
 }
 

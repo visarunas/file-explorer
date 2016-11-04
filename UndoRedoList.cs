@@ -2,12 +2,12 @@
 
 namespace FileExplorer
 {
-	public class PathList<T>
+	public class UndoRedoList<T>
 	{
 		Stack<T> undoStack = new Stack<T>();
 		Stack<T> redoStack = new Stack<T>();
 
-		public PathList()
+		public UndoRedoList()
 		{
 		}
 
