@@ -25,9 +25,11 @@ namespace FileExplorer
 
 			foreach (FileSystemInfo file in Dir.GetFileSystemInfos())
 			{
+				//if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
 				string imageKey = file.Name;
 				item = new ListViewFileItem(file.Name);
 				item.Attributes = file.Attributes;
+				item.Name = file.FullName;
 				if (file.Attributes.HasFlag(FileAttributes.Directory))
 				{
 

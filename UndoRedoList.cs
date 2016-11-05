@@ -31,18 +31,17 @@ namespace FileExplorer
 
 		public T Undo()
 		{
-			if (undoStack.Count != 0)
+			if (undoStack.Count == 1)
+			{
+				return undoStack.Peek();
+			}
+			else
 			{
 				T obj = undoStack.Pop();
 				redoStack.Push(obj);
 
 				return undoStack.Peek();
 			}
-			else
-			{
-				return default(T);
-			}
-			
 		}
 
 		public T Redo()

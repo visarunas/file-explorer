@@ -24,7 +24,11 @@ namespace FileExplorer
 				return dir;
 			}
 			set {
-				if (value.ToString().Last() == '\\')
+				if (!value.Exists)
+				{
+					throw new DirectoryNotFoundException();
+				}
+				else if (value.ToString().Last() == '\\')
 				{
 					dir = value;
 				}
@@ -98,13 +102,13 @@ namespace FileExplorer
 
 		private void pathTextBox_Validated(object sender, EventArgs e)
 		{
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
+			//Stopwatch sw = new Stopwatch();
+			//sw.Start();
 
 			ChangeDirectory(pathTextBox.Text);
 
-			sw.Stop();
-			Debug.WriteLine("Elapsed={0}", sw.Elapsed);
+			//sw.Stop();
+			//Debug.WriteLine("Elapsed={0}", sw.Elapsed);
 
 		}
 
@@ -123,11 +127,11 @@ namespace FileExplorer
 
 			if (item.Attributes.HasFlag(FileAttributes.Directory))
 			{
-				ChangeDirectory(Dir.ToString() + item.Text + '\\');
+				ChangeDirectory(item.Name);
 			}
 			else
 			{
-				fileOperator.OpenFile(Dir + item.Text);
+				fileOperator.OpenFile(item.Name);
 			}
 		}
 
@@ -151,8 +155,8 @@ namespace FileExplorer
 
 		private void FileExplorer_FormClosed(object sender, FormClosedEventArgs e)
 		{
-			imageList.Dispose();
-			listView.Dispose();
+			//imageList.Dispose();
+			//listView.Dispose();
 		}
 
 		private void listView_MouseClick(object sender, MouseEventArgs e)
@@ -179,36 +183,52 @@ namespace FileExplorer
 
 		public void SearchFile(string searchName, DirectoryInfo dir)
 		{
-			//Debug.WriteLine(dir.ToString());
-			foreach (FileSystemInfo file in dir.GetFileSystemInfos())
+			
+			foreach (FileSystemInfo file in dir.GetFileSystemInfos("*", SearchOption.AllDirectories))
 			{
-				if(file.Name == searchName)
+				if(file.Name.Contains(searchName))
 				{
 					string imageKey = file.Name;
 					ListViewFileItem item = new ListViewFileItem(file.Name);
 					item.Attributes = file.Attributes;
+					item.Name = file.FullName;
+					Icon icon;
 					if (file.Attributes.HasFlag(FileAttributes.Directory))
 					{
-						Icon iconForFile = IconReader.GetFolderIcon(file.FullName, IconReader.IconSize.Large, IconReader.FolderType.Open);
-						imageList.Images.Add(imageKey, iconForFile);          //TODO if Extension unknown
+						icon = IconReader.GetFolderIcon(file.FullName, IconReader.IconSize.Large, IconReader.FolderType.Open);
 					}
 					else
 					{
-						if (!imageList.Images.ContainsKey(imageKey))
-						{
-							Icon iconForFile = IconReader.GetFileIcon(file.FullName, IconReader.IconSize.Large, false);
-							imageList.Images.Add(imageKey, iconForFile);          //TODO if Extension unknown
-						}
+						icon = IconReader.GetFileIcon(file.FullName, IconReader.IconSize.Large, false);
 					}
 					item.ImageKey = imageKey;
-					listView.Items.Add(item);
-					//listView.Refresh();
-				}
 
-				if (file.Attributes.HasFlag(FileAttributes.Directory))
-				{
-					SearchFile(searchName, new DirectoryInfo(dir.ToString() + @"/" + file.Name));
+					//imageList.Images.Add(imageKey, icon);
+					AddListViewItem(item, icon);
+					//listView.EndUpdate();
+					//listView.Refresh();
+					//listView.BeginUpdate();
 				}
+			}
+		}
+
+		delegate void SetTextCallback(ListViewItem item, Icon icon);
+
+		private void AddListViewItem(ListViewItem item, Icon icon)
+		{
+			// InvokeRequired required compares the thread ID of the
+			// calling thread to the thread ID of the creating thread.
+			// If these threads are different, it returns true.
+			if (InvokeRequired)
+			{
+				SetTextCallback d = new SetTextCallback(AddListViewItem);
+				this.Invoke(d, new object[] { item, icon });
+			}
+			else
+			{
+				imageList.Images.Add(item.ImageKey, icon);
+				listView.Items.Add(item);
+				listView.Refresh();
 			}
 		}
 
@@ -221,19 +241,20 @@ namespace FileExplorer
 			else
 			{
 				listView.Clear();
+				imageList.Images.Clear();
 				var columnManager = new ListViewColumnManager(listView);
 				columnManager.addColumn("Name", 400);
 				string searchName = searchTextBox.Text;
 
-				listView.BeginUpdate();
+				//listView.BeginUpdate();
 
-				//Thread sThread = new Thread( () => SearchFile(searchName, Dir));
+				Thread sThread = new Thread( () => SearchFile(searchName, Dir));
 
-				//sThread.Start();
-				SearchFile(searchName, Dir);
+				sThread.Start();
+				//SearchFile(searchName, Dir);
 
 
-				listView.EndUpdate();
+				//listView.EndUpdate();
 			}
 
 		}

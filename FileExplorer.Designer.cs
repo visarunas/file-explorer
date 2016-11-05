@@ -40,8 +40,6 @@
 			this.buttonRedo = new System.Windows.Forms.Button();
 			this.buttonBack = new System.Windows.Forms.Button();
 			this.searchTextBox = new System.Windows.Forms.TextBox();
-			this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-			this.folderBrowserDialog2 = new System.Windows.Forms.FolderBrowserDialog();
 			this.viewListContext.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -186,8 +184,6 @@
 		private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
-		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog2;
 	}
 }
 
