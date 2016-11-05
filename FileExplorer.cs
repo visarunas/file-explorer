@@ -11,6 +11,7 @@ using Etier.IconHelper;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Security.Permissions;
 
 namespace FileExplorer
 {
@@ -37,24 +38,26 @@ namespace FileExplorer
 					dir = new DirectoryInfo(value.ToString() + @"\");
 				}
 				OnDirectoryChanged?.Invoke(this, new EventArgs());
-				pathTextBox.Text = Dir.ToString();
+				setPathTextBoxText(Dir.ToString());
 			}
 		}
 
 		private UndoRedoList<string> pathList;
 		private FileOperator fileOperator;
-		private FileListViewUpdater fileListViewUpdater;
+		private ListViewManager fileListViewUpdater;
+		private Thread searchThread, loadThread;
 
 		public FileExplorer()
 		{
 			InitializeComponent();
+			
 
 			//OnDirectoryChanged += pathTextBox_Validated;
 
-			fileListViewUpdater = new FileListViewUpdater();
+			fileListViewUpdater = new ListViewManager(listView, imageList, this);
 			pathList = new UndoRedoList<string>();
 			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
-			ChangeDirectory(Dir.ToString());
+			
 
 			listView.LargeImageList = imageList;
 			listView.SmallImageList = imageList;
@@ -77,10 +80,9 @@ namespace FileExplorer
 			searchTextBox.GotFocus += searchTextBox_GotFocus;
 			searchTextBox.LostFocus += searchTextBox_LostFocus;
 
-			
+			ChangeDirectory(Dir.ToString());
 
 		}
-
 
 		private void searchTextBox_GotFocus(object sender, EventArgs e)
 		{
@@ -89,6 +91,11 @@ namespace FileExplorer
 				searchTextBox.ForeColor = Color.Black;
 				searchTextBox.Text = "";
 			}
+		}
+
+		private void setPathTextBoxText(string text)
+		{
+			pathTextBox.Text = text;
 		}
 
 		private void searchTextBox_LostFocus(object sender, EventArgs e)
@@ -137,24 +144,59 @@ namespace FileExplorer
 
 		public void ChangeDirectory(string path)
 		{
-			Dir = new DirectoryInfo(path);
-			updateView();
-			Debug.WriteLine("Changed Directory to: " + Dir.ToString());
-			pathList.AddNext(path);
+			if (path != string.Empty && path != null)
+			{
+				Dir = new DirectoryInfo(path);
+				killThread(loadThread);
+				loadThread = new Thread(() => DisplayCurrentDirectory());
+				loadThread.Start();
+				//DisplayCurrentDirectory();
+				Debug.WriteLine("Changed Directory to: " + Dir.ToString());
+				pathList.AddNext(path);
+			}
+			else
+			{
+				setPathTextBoxText("This PC");
+				Debug.WriteLine("Drive info");
+				DislaySystemDrives();
+
+			}
+			
 		}
 
-		private void updateView()
+		private void DislaySystemDrives()
 		{
-			fileListViewUpdater.update(listView, imageList, Dir);
+			fileListViewUpdater.DisplaySystemDrives();
+		}
+
+		private void DisplayCurrentDirectory()
+		{
+			fileListViewUpdater.DisplayDirectory(Dir);
 		}
 
 		private void buttonBack_Click(object sender, EventArgs e)
 		{
-			ChangeDirectory(Dir.Parent.FullName);
+			if (Dir.Parent != null)
+			{
+				ChangeDirectory(Dir.Parent.FullName);
+			}
+			else
+			{
+				ChangeDirectory(null);
+			}
+			
 		}
 
 		private void FileExplorer_FormClosed(object sender, FormClosedEventArgs e)
 		{
+			if (searchThread != null)
+			{
+				searchThread.Abort();
+			}
+			if (loadThread != null)
+			{
+				loadThread.Abort();
+			}
 			//imageList.Dispose();
 			//listView.Dispose();
 		}
@@ -170,65 +212,27 @@ namespace FileExplorer
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
 			Dir = new DirectoryInfo(pathList.Undo());
-			updateView();
+			DisplayCurrentDirectory();
 			Debug.WriteLine("Undo Directory to: " + Dir.ToString());
 		}
 
 		private void buttonRedo_Click(object sender, EventArgs e)
 		{
 			Dir = new DirectoryInfo(pathList.Redo());
-			updateView();
+			DisplayCurrentDirectory();
 			Debug.WriteLine("Redo Directory to: " + Dir.ToString());
 		}
 
 		public void SearchFile(string searchName, DirectoryInfo dir)
 		{
-			
+			var listViewManager = new ListViewManager(listView, imageList, this);
 			foreach (FileSystemInfo file in dir.GetFileSystemInfos("*", SearchOption.AllDirectories))
 			{
 				if(file.Name.Contains(searchName))
 				{
-					string imageKey = file.Name;
-					ListViewFileItem item = new ListViewFileItem(file.Name);
-					item.Attributes = file.Attributes;
-					item.Name = file.FullName;
-					Icon icon;
-					if (file.Attributes.HasFlag(FileAttributes.Directory))
-					{
-						icon = IconReader.GetFolderIcon(file.FullName, IconReader.IconSize.Large, IconReader.FolderType.Open);
-					}
-					else
-					{
-						icon = IconReader.GetFileIcon(file.FullName, IconReader.IconSize.Large, false);
-					}
-					item.ImageKey = imageKey;
-
-					//imageList.Images.Add(imageKey, icon);
-					AddListViewItem(item, icon);
-					//listView.EndUpdate();
-					//listView.Refresh();
-					//listView.BeginUpdate();
+					listViewManager.AddFile(file);
+					
 				}
-			}
-		}
-
-		delegate void SetTextCallback(ListViewItem item, Icon icon);
-
-		private void AddListViewItem(ListViewItem item, Icon icon)
-		{
-			// InvokeRequired required compares the thread ID of the
-			// calling thread to the thread ID of the creating thread.
-			// If these threads are different, it returns true.
-			if (InvokeRequired)
-			{
-				SetTextCallback d = new SetTextCallback(AddListViewItem);
-				this.Invoke(d, new object[] { item, icon });
-			}
-			else
-			{
-				imageList.Images.Add(item.ImageKey, icon);
-				listView.Items.Add(item);
-				listView.Refresh();
 			}
 		}
 
@@ -248,15 +252,25 @@ namespace FileExplorer
 
 				//listView.BeginUpdate();
 
-				Thread sThread = new Thread( () => SearchFile(searchName, Dir));
+				killThread(searchThread);
+				searchThread = new Thread( () => SearchFile(searchName, Dir));
 
-				sThread.Start();
+				searchThread.Start();
 				//SearchFile(searchName, Dir);
 
 
 				//listView.EndUpdate();
 			}
 
+		}
+
+		[SecurityPermissionAttribute(SecurityAction.Demand, ControlThread = true)]
+		private void killThread(Thread thread)
+		{
+			if (thread != null)
+			{
+				thread.Abort();	//TODO Make thread killing safe
+			}
 		}
 	}
 }

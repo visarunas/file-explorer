@@ -30,7 +30,6 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			this.imageList = new System.Windows.Forms.ImageList(this.components);
-			this.listView = new System.Windows.Forms.ListView();
 			this.viewListContext = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -40,6 +39,7 @@
 			this.buttonRedo = new System.Windows.Forms.Button();
 			this.buttonBack = new System.Windows.Forms.Button();
 			this.searchTextBox = new System.Windows.Forms.TextBox();
+			this.listView = new ListViewNF();
 			this.viewListContext.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -48,20 +48,6 @@
 			this.imageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
 			this.imageList.ImageSize = new System.Drawing.Size(32, 32);
 			this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-			// 
-			// listView
-			// 
-			this.listView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.listView.ContextMenuStrip = this.viewListContext;
-			this.listView.Location = new System.Drawing.Point(12, 57);
-			this.listView.Name = "listView";
-			this.listView.Size = new System.Drawing.Size(960, 592);
-			this.listView.TabIndex = 0;
-			this.listView.UseCompatibleStateImageBehavior = false;
-			this.listView.DoubleClick += new System.EventHandler(this.listView_DoubleClick);
-			this.listView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listView_MouseClick);
 			// 
 			// viewListContext
 			// 
@@ -100,7 +86,7 @@
 			this.pathTextBox.Location = new System.Drawing.Point(173, 21);
 			this.pathTextBox.Name = "pathTextBox";
 			this.pathTextBox.Size = new System.Drawing.Size(505, 29);
-			this.pathTextBox.TabIndex = 1;
+			this.pathTextBox.TabIndex = 4;
 			this.pathTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pathTextBox_KeyDown);
 			this.pathTextBox.Validated += new System.EventHandler(this.pathTextBox_Validated);
 			// 
@@ -148,18 +134,30 @@
 			this.searchTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.searchTextBox.Validated += new System.EventHandler(this.searchTextBox_Validated);
 			// 
+			// listView
+			// 
+			this.listView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.listView.Location = new System.Drawing.Point(12, 56);
+			this.listView.Name = "listView";
+			this.listView.Size = new System.Drawing.Size(960, 593);
+			this.listView.TabIndex = 1;
+			this.listView.UseCompatibleStateImageBehavior = false;
+			this.listView.DoubleClick += new System.EventHandler(this.listView_DoubleClick);
+			// 
 			// FileExplorer
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.Control;
 			this.ClientSize = new System.Drawing.Size(984, 661);
+			this.Controls.Add(this.listView);
 			this.Controls.Add(this.searchTextBox);
 			this.Controls.Add(this.buttonBack);
 			this.Controls.Add(this.buttonRedo);
 			this.Controls.Add(this.buttonUndo);
 			this.Controls.Add(this.pathTextBox);
-			this.Controls.Add(this.listView);
 			this.DoubleBuffered = true;
 			this.MinimumSize = new System.Drawing.Size(700, 250);
 			this.Name = "FileExplorer";
@@ -174,7 +172,6 @@
 
 		#endregion
 		private System.Windows.Forms.ImageList imageList;
-		private System.Windows.Forms.ListView listView;
 		private System.Windows.Forms.TextBox pathTextBox;
 		private System.Windows.Forms.Button buttonUndo;
 		private System.Windows.Forms.Button buttonRedo;
@@ -184,6 +181,7 @@
 		private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
+		private ListViewNF listView;
 	}
 }
 
