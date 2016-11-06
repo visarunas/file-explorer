@@ -25,8 +25,7 @@ namespace FileExplorer
 				{
 					redoStack.Clear();
 				}
-			}
-			
+			}	
 		}
 
 		public T Undo()

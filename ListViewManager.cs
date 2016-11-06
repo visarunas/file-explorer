@@ -1,8 +1,11 @@
 ﻿using Etier.IconHelper;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Security.AccessControl;
 using System.Windows.Forms;
 
 namespace FileExplorer
@@ -22,6 +25,7 @@ namespace FileExplorer
 
 		public void AddFile(FileSystemInfo file)
 		{
+
 			ListViewFileItem item = new ListViewFileItem(file.Name);
 			item.Attributes = file.Attributes;
 			item.Name = file.FullName;
@@ -51,9 +55,6 @@ namespace FileExplorer
 		public void DisplaySystemDrives()
 		{
 			ClearListView();
-
-			var columnManager = new ListViewColumnManager(listView);
-			columnManager.addColumn("Name", 400);
 
 			DriveInfo[] allDrives = DriveInfo.GetDrives();
 			foreach (DriveInfo drive in allDrives)
@@ -98,7 +99,6 @@ namespace FileExplorer
 				//TODO this is temp
 				var columnManager = new ListViewColumnManager(listView);
 				columnManager.addColumn("Name", 400);
-				Debug.WriteLine("Clear");
 			}
 		}
 
@@ -106,12 +106,30 @@ namespace FileExplorer
 		{
 			ClearListView();
 
-			//listView.BeginUpdate();
-			foreach (FileSystemInfo file in Dir.GetFileSystemInfos())
+			//DirectorySecurity sec = Dir.GetAccessControl();
+
+			try
 			{
-				AddFile(file);
+				var files = from fileSys in Dir.EnumerateFileSystemInfos()
+							select fileSys;
+
+				foreach (var file in files)
+				{
+					AddFile(file);
+				}
 			}
-			//listView.EndUpdate();
+			catch (UnauthorizedAccessException e)
+			{
+				Debug.WriteLine(e.Message);
+			}
+
+
+
+			/*foreach (FileSystemInfo file in Dir.GetFileSystemInfos())
+			{
+				//AddFile(file);
+			}
+			*/
 		}
 
 	}

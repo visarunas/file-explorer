@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Security.Permissions;
+using FileExplorer.ExtensionMethods;
 
 namespace FileExplorer
 {
@@ -50,7 +51,6 @@ namespace FileExplorer
 		public FileExplorer()
 		{
 			InitializeComponent();
-			
 
 			//OnDirectoryChanged += pathTextBox_Validated;
 
@@ -223,16 +223,34 @@ namespace FileExplorer
 			Debug.WriteLine("Redo Directory to: " + Dir.ToString());
 		}
 
-		public void SearchFile(string searchName, DirectoryInfo dir)
+		public void SearchForFile(string searchName, DirectoryInfo dir)
 		{
+
 			var listViewManager = new ListViewManager(listView, imageList, this);
-			foreach (FileSystemInfo file in dir.GetFileSystemInfos("*", SearchOption.AllDirectories))
+
+			SearchAll(searchName, dir, listViewManager);
+
+		}
+
+		private void SearchAll(string searchName, DirectoryInfo dir, ListViewManager listViewManager)
+		{
+			try
 			{
-				if(file.Name.Contains(searchName))
+				foreach (FileSystemInfo file in dir.GetFileSystemInfos())
 				{
-					listViewManager.AddFile(file);
-					
+					if (file.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase))
+					{
+						listViewManager.AddFile(file);
+					}
+					if (file.Attributes.HasFlag(FileAttributes.Directory))
+					{
+						SearchAll(searchName, new DirectoryInfo(file.FullName), listViewManager);
+					}
 				}
+			}
+			catch (UnauthorizedAccessException e)
+			{
+				Debug.WriteLine(e.Message);
 			}
 		}
 
@@ -250,21 +268,21 @@ namespace FileExplorer
 				columnManager.addColumn("Name", 400);
 				string searchName = searchTextBox.Text;
 
-				//listView.BeginUpdate();
 
 				killThread(searchThread);
-				searchThread = new Thread( () => SearchFile(searchName, Dir));
+				searchThread = new Thread( () => SearchForFile(searchName, Dir));
 
 				searchThread.Start();
+
+
 				//SearchFile(searchName, Dir);
 
 
-				//listView.EndUpdate();
 			}
 
 		}
 
-		[SecurityPermissionAttribute(SecurityAction.Demand, ControlThread = true)]
+		[SecurityPermission(SecurityAction.Demand, ControlThread = true)]
 		private void killThread(Thread thread)
 		{
 			if (thread != null)
@@ -272,5 +290,7 @@ namespace FileExplorer
 				thread.Abort();	//TODO Make thread killing safe
 			}
 		}
+
+
 	}
 }
