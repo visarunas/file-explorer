@@ -1,41 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace FileExplorer
 {
-	public class UndoRedoList<T>
+	public class UndoRedoList
 	{
-		Stack<T> undoStack = new Stack<T>();
-		Stack<T> redoStack = new Stack<T>();
+		Stack<Action> undoStack = new Stack<Action>();
+		Stack<Action> redoStack = new Stack<Action>();
 
 		public UndoRedoList()
 		{
 		}
 
-		public void AddNext(T obj)
+		public void AddNext(Action obj)
 		{
-			if (undoStack.Count != 0 && obj.Equals(undoStack.Peek()))
-			{
+			undoStack.Push(obj);
 
-			}
-			else
+			if (redoStack.Count != 0)
 			{
-				undoStack.Push(obj);
-
-				if (redoStack.Count != 0)
+				if (redoStack.Peek().Equals(obj))
 				{
-					if (redoStack.Peek().Equals(obj))
-					{
-						redoStack.Pop();
-					}
-					else
-					{
-						redoStack.Clear();
-					}
+					redoStack.Pop();
+				}
+				else
+				{
+					redoStack.Clear();
 				}
 			}
 		}
 
-		public T Undo()
+		public Action Undo()
 		{
 			if (undoStack.Count == 1)
 			{
@@ -43,18 +39,18 @@ namespace FileExplorer
 			}
 			else
 			{
-				T obj = undoStack.Pop();
+				Action obj = undoStack.Pop();
 				redoStack.Push(obj);
 
 				return undoStack.Peek();
 			}
 		}
 
-		public T Redo()
+		public Action Redo()
 		{
 			if (redoStack.Count != 0)
 			{
-				T obj = redoStack.Pop();
+				Action obj = redoStack.Pop();
 				undoStack.Push(obj);
 
 				return obj;

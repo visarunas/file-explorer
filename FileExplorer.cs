@@ -44,7 +44,7 @@ namespace FileExplorer
 			}
 		}
 
-		private UndoRedoList<string> pathList;
+		private UndoRedoList pathList;
 		private FileOperator fileOperator;
 		private ListViewManager fileListViewUpdater;
 		private Thread searchThread, loadThread;
@@ -56,7 +56,7 @@ namespace FileExplorer
 			//OnDirectoryChanged += pathTextBox_Validated;
 
 			fileListViewUpdater = new ListViewManager(listView, imageList, this);
-			pathList = new UndoRedoList<string>();
+			pathList = new UndoRedoList();
 			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
 			
 
@@ -154,14 +154,15 @@ namespace FileExplorer
 			{
 				Dir = new DirectoryInfo(path);
 				killThread(loadThread);
-				loadThread = new Thread(() => DisplayCurrentDirectory());
+				loadThread = new Thread( () => DisplayCurrentDirectory() );
 				loadThread.Start();
 				//DisplayCurrentDirectory();
-				Debug.WriteLine("Changed Directory to: " + Dir.ToString());
 				if (addToPathList)
 				{
-					pathList.AddNext(path);
+					string currentPath = Dir.ToString();
+					pathList.AddNext(() => ChangeDirectory(currentPath, false));
 				}
+				Debug.WriteLine("Changed Directory to: " + Dir.ToString());
 			}
 			else
 			{
@@ -169,7 +170,7 @@ namespace FileExplorer
 				Debug.WriteLine("Drive info");
 				if (addToPathList)
 				{
-					pathList.AddNext(path);
+					pathList.AddNext( () => ChangeDirectory(null, false) );
 				}
 				//pathList.AddNext(path);
 				DislaySystemDrives();
@@ -226,14 +227,14 @@ namespace FileExplorer
 
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
-			ChangeDirectory(pathList.Undo(), false);
-			Debug.WriteLine("Undo Directory to: " + Dir.ToString());
+			pathList.Undo().Invoke();
+			//Debug.WriteLine("Undo Directory to: " + Dir.ToString());
 		}
 
 		private void buttonRedo_Click(object sender, EventArgs e)
 		{
-			ChangeDirectory(pathList.Redo(), false);
-			Debug.WriteLine("Redo Directory to: " + Dir.ToString());
+			pathList.Redo().Invoke();
+			//Debug.WriteLine("Redo Directory to: " + Dir.ToString());
 		}
 
 		public void SearchForFile(string searchName, DirectoryInfo dir)
