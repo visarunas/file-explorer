@@ -31,16 +31,18 @@
 			this.components = new System.ComponentModel.Container();
 			this.imageList = new System.Windows.Forms.ImageList(this.components);
 			this.viewListContext = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pathTextBox = new System.Windows.Forms.TextBox();
 			this.buttonUndo = new System.Windows.Forms.Button();
 			this.buttonRedo = new System.Windows.Forms.Button();
 			this.buttonBack = new System.Windows.Forms.Button();
 			this.searchTextBox = new System.Windows.Forms.TextBox();
 			this.listView = new ListViewNF();
+			this.indicatorPictureBox = new System.Windows.Forms.PictureBox();
 			this.viewListContext.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.indicatorPictureBox)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// imageList
@@ -52,30 +54,30 @@
 			// viewListContext
 			// 
 			this.viewListContext.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cutToolStripMenuItem,
             this.copyToolStripMenuItem,
-            this.pasteToolStripMenuItem});
+            this.pasteToolStripMenuItem,
+            this.deleteToolStripMenuItem});
 			this.viewListContext.Name = "viewListContext";
-			this.viewListContext.Size = new System.Drawing.Size(153, 92);
+			this.viewListContext.Size = new System.Drawing.Size(108, 70);
 			this.viewListContext.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.viewListContext_ItemClicked);
-			// 
-			// cutToolStripMenuItem
-			// 
-			this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
-			this.cutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.cutToolStripMenuItem.Text = "Cut";
 			// 
 			// copyToolStripMenuItem
 			// 
 			this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-			this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.copyToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.copyToolStripMenuItem.Text = "Copy";
 			// 
 			// pasteToolStripMenuItem
 			// 
 			this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
-			this.pasteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.pasteToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.pasteToolStripMenuItem.Text = "Paste";
+			// 
+			// deleteToolStripMenuItem
+			// 
+			this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+			this.deleteToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+			this.deleteToolStripMenuItem.Text = "Delete";
 			// 
 			// pathTextBox
 			// 
@@ -148,12 +150,23 @@
 			this.listView.UseCompatibleStateImageBehavior = false;
 			this.listView.DoubleClick += new System.EventHandler(this.listView_DoubleClick);
 			// 
+			// indicatorPictureBox
+			// 
+			this.indicatorPictureBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+			this.indicatorPictureBox.Image = global::FileExplorer.Properties.Resources.finishedLoadingImage;
+			this.indicatorPictureBox.Location = new System.Drawing.Point(684, 18);
+			this.indicatorPictureBox.Name = "indicatorPictureBox";
+			this.indicatorPictureBox.Size = new System.Drawing.Size(32, 32);
+			this.indicatorPictureBox.TabIndex = 5;
+			this.indicatorPictureBox.TabStop = false;
+			// 
 			// FileExplorer
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.Control;
 			this.ClientSize = new System.Drawing.Size(984, 661);
+			this.Controls.Add(this.indicatorPictureBox);
 			this.Controls.Add(this.listView);
 			this.Controls.Add(this.searchTextBox);
 			this.Controls.Add(this.buttonBack);
@@ -167,6 +180,7 @@
 			this.Text = "File Explorer";
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FileExplorer_FormClosed);
 			this.viewListContext.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.indicatorPictureBox)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -180,10 +194,11 @@
 		private System.Windows.Forms.Button buttonBack;
 		private System.Windows.Forms.TextBox searchTextBox;
 		private System.Windows.Forms.ContextMenuStrip viewListContext;
-		private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
 		private ListViewNF listView;
+		private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
+		private System.Windows.Forms.PictureBox indicatorPictureBox;
 	}
 }
 

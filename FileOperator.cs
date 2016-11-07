@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.VisualBasic.FileIO;
 using static System.Windows.Forms.ListView;
 
 namespace FileExplorer
@@ -40,6 +41,16 @@ namespace FileExplorer
 					}
 				}
 			}
+		}
+
+		public void DeleteFile(ListViewFileItem[] files)
+		{
+			foreach(ListViewFileItem file in files)
+			{
+				FileSystem.DeleteFile(file.Name, UIOption.AllDialogs, RecycleOption.SendToRecycleBin);
+				//File.Delete(file.Name);
+				
+			}	
 		}
 
 		public void OpenFile(string filePath)

@@ -10,6 +10,7 @@ namespace FileExplorer
 {
 	public class SearchDisplayer : ListViewFiller
 	{
+		
 		public SearchDisplayer(ListViewManager listViewManager) : base(listViewManager)
 		{
 
@@ -17,8 +18,10 @@ namespace FileExplorer
 
 		public void FillListView(string searchName, DirectoryInfo dir)
 		{
+			OnLoadingStarted();
 			listViewManager.ClearListView();
 			SearchAll(searchName, dir);
+			OnLoadingFinished();
 		}
 
 		private void SearchAll(string searchName, DirectoryInfo dir)

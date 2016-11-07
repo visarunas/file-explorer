@@ -44,24 +44,26 @@ namespace FileExplorer
 			}
 		}
 
-		private UndoRedoList pathList;
+		private UndoRedoList UndoRedoList;
 		private FileOperator fileOperator;
-		private ListViewManager fileListViewUpdater;
+		private ListViewManager listViewManager;
 		private Thread searchThread, loadThread;
 		private DirectoryDisplayer directoryDisplayer;
 		private SystemDriveDisplayer systemDriveDisplayer;
 		private SearchDisplayer searchDisplayer;
+
+		
 
 		public FileExplorer()
 		{
 			InitializeComponent();
 			//OnDirectoryChanged += pathTextBox_Validated;
 
-			fileListViewUpdater = new ListViewManager(listView, imageList, this);
-			directoryDisplayer = new DirectoryDisplayer(fileListViewUpdater);
-			systemDriveDisplayer = new SystemDriveDisplayer(fileListViewUpdater);
-			searchDisplayer = new SearchDisplayer(fileListViewUpdater);
-			pathList = new UndoRedoList();
+			listViewManager = new ListViewManager(listView, imageList, this);
+			directoryDisplayer = new DirectoryDisplayer(listViewManager);
+			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager);
+			searchDisplayer = new SearchDisplayer(listViewManager);
+			UndoRedoList = new UndoRedoList();
 			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
 			
 
@@ -80,13 +82,17 @@ namespace FileExplorer
 			}
 
 			imageList.ImageSize = new Size(32, 32);
-
-			 fileOperator = new FileOperator();
-
+			fileOperator = new FileOperator();
 			searchTextBox.GotFocus += searchTextBox_GotFocus;
 			searchTextBox.LostFocus += searchTextBox_LostFocus;
 
 			ChangeDirectory(Dir.ToString());
+
+			searchDisplayer.LoadingFinished += delegate
+			{ indicatorPictureBox.Image = Properties.Resources.finishedLoadingImage; };
+
+			searchDisplayer.LoadingStarted += delegate
+			{ indicatorPictureBox.Image = Properties.Resources.loadingImage; };
 
 		}
 
@@ -164,7 +170,7 @@ namespace FileExplorer
 				if (addToPathList)
 				{
 					string currentPath = Dir.ToString();
-					pathList.AddNext(() => ChangeDirectory(currentPath, false));
+					UndoRedoList.AddNext(() => ChangeDirectory(currentPath, false));
 				}
 			}
 			else
@@ -173,7 +179,7 @@ namespace FileExplorer
 				Debug.WriteLine("Drive info");
 				if (addToPathList)
 				{
-					pathList.AddNext( () => ChangeDirectory(null, false) );
+					UndoRedoList.AddNext( () => ChangeDirectory(null, false) );
 				}
 				//pathList.AddNext(path);
 				systemDriveDisplayer.FillListView();
@@ -221,13 +227,13 @@ namespace FileExplorer
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
 			killThread(searchThread);
-			pathList.Undo().Invoke();
+			UndoRedoList.Undo().Invoke();
 		}
 
 		private void buttonRedo_Click(object sender, EventArgs e)
 		{
 			killThread(searchThread);
-			pathList.Redo().Invoke();
+			UndoRedoList.Redo().Invoke();
 		}
 
 		private void searchTextBox_Validated(object sender, EventArgs e)
@@ -245,7 +251,7 @@ namespace FileExplorer
 			{
 				if (addToPathList)
 				{
-					pathList.AddNext(() => SearchForFile(searchName, false));
+					UndoRedoList.AddNext(() => SearchForFile(searchName, false));
 				}
 				killThread(searchThread);
 				searchThread = new Thread(() => searchDisplayer.FillListView(searchName, Dir));
@@ -266,7 +272,24 @@ namespace FileExplorer
 			{
 				fileOperator.PasteFile(Dir.ToString());
 			}
+			else if (e.ClickedItem == deleteToolStripMenuItem)
+			{
+				var arr = new ListViewFileItem[getSelectedItems().Count];
+				getSelectedItems().CopyTo(arr, 0);
+				var confirmResult = MessageBox.Show("Are you sure to delete this item ??",
+									 "Confirm Delete!!",
+									 MessageBoxButtons.YesNo);
+				if (confirmResult == DialogResult.Yes)
+				{
+					fileOperator.DeleteFile(arr);
+					listViewManager.DeleteItems(arr);
+				}		
+			}
 		}
+
+		
+
+		
 
 		[SecurityPermission(SecurityAction.Demand, ControlThread = true)]
 		private void killThread(Thread thread)
@@ -276,7 +299,6 @@ namespace FileExplorer
 				thread.Abort();	//TODO Make thread killing safe
 			}
 		}
-
 
 	}
 }

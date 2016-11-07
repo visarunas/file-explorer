@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace FileExplorer
 {
-	class ListViewFileItem : ListViewItem
+	public class ListViewFileItem : ListViewItem
 	{
 		public System.IO.FileAttributes Attributes { get; set; }
 

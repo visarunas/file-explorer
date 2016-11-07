@@ -122,5 +122,9 @@ namespace FileExplorer
 			}
 		}
 
+		public void DeleteItems(ListViewFileItem[] arr)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
