@@ -62,6 +62,7 @@
     <Compile Include="ListViewNF.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="SpecialDirectories.cs" />
     <Compile Include="UndoRedoList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -13,19 +13,26 @@ namespace FileExplorer
 
 		public void AddNext(T obj)
 		{
-			undoStack.Push(obj);
-
-			if (redoStack.Count != 0)
+			if (undoStack.Count != 0 && obj.Equals(undoStack.Peek()))
 			{
-				if (redoStack.Peek().Equals(obj))
+
+			}
+			else
+			{
+				undoStack.Push(obj);
+
+				if (redoStack.Count != 0)
 				{
-					redoStack.Pop();
+					if (redoStack.Peek().Equals(obj))
+					{
+						redoStack.Pop();
+					}
+					else
+					{
+						redoStack.Clear();
+					}
 				}
-				else
-				{
-					redoStack.Clear();
-				}
-			}	
+			}
 		}
 
 		public T Undo()

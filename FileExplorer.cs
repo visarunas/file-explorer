@@ -13,6 +13,7 @@ using System.IO;
 using System.Threading;
 using System.Security.Permissions;
 using FileExplorer.ExtensionMethods;
+using static System.Windows.Forms.ListView;
 
 namespace FileExplorer
 {
@@ -75,7 +76,7 @@ namespace FileExplorer
 
 			imageList.ImageSize = new Size(32, 32);
 
-			fileOperator = new FileOperator();
+			 fileOperator = new FileOperator();
 
 			searchTextBox.GotFocus += searchTextBox_GotFocus;
 			searchTextBox.LostFocus += searchTextBox_LostFocus;
@@ -127,6 +128,11 @@ namespace FileExplorer
 			}
 		}
 
+		private SelectedListViewItemCollection getSelectedItems()
+		{
+			return listView.SelectedItems;
+		}
+
 		private void listView_DoubleClick(object sender, EventArgs e)
 		{
 			ListView.SelectedListViewItemCollection itemCollection = listView.SelectedItems;
@@ -142,7 +148,7 @@ namespace FileExplorer
 			}
 		}
 
-		public void ChangeDirectory(string path)
+		public void ChangeDirectory(string path, bool addToPathList = true)
 		{
 			if (path != string.Empty && path != null)
 			{
@@ -152,12 +158,20 @@ namespace FileExplorer
 				loadThread.Start();
 				//DisplayCurrentDirectory();
 				Debug.WriteLine("Changed Directory to: " + Dir.ToString());
-				pathList.AddNext(path);
+				if (addToPathList)
+				{
+					pathList.AddNext(path);
+				}
 			}
 			else
 			{
 				setPathTextBoxText("This PC");
 				Debug.WriteLine("Drive info");
+				if (addToPathList)
+				{
+					pathList.AddNext(path);
+				}
+				//pathList.AddNext(path);
 				DislaySystemDrives();
 
 			}
@@ -176,13 +190,14 @@ namespace FileExplorer
 
 		private void buttonBack_Click(object sender, EventArgs e)
 		{
+			killThread(searchThread);
 			if (Dir.Parent != null)
 			{
 				ChangeDirectory(Dir.Parent.FullName);
 			}
 			else
 			{
-				ChangeDirectory(null);
+				ChangeDirectory("");
 			}
 			
 		}
@@ -211,15 +226,13 @@ namespace FileExplorer
 
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
-			Dir = new DirectoryInfo(pathList.Undo());
-			DisplayCurrentDirectory();
+			ChangeDirectory(pathList.Undo(), false);
 			Debug.WriteLine("Undo Directory to: " + Dir.ToString());
 		}
 
 		private void buttonRedo_Click(object sender, EventArgs e)
 		{
-			Dir = new DirectoryInfo(pathList.Redo());
-			DisplayCurrentDirectory();
+			ChangeDirectory(pathList.Redo(), false);
 			Debug.WriteLine("Redo Directory to: " + Dir.ToString());
 		}
 
@@ -280,6 +293,20 @@ namespace FileExplorer
 
 			}
 
+		}
+
+		private void viewListContext_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+			if (e.ClickedItem == copyToolStripMenuItem)
+			{
+				var arr = new ListViewFileItem[getSelectedItems().Count];
+				getSelectedItems().CopyTo(arr, 0);
+				fileOperator.SelectFiles(arr);
+			}
+			else if (e.ClickedItem == pasteToolStripMenuItem)
+			{
+				fileOperator.PasteFile(Dir.ToString());
+			}
 		}
 
 		[SecurityPermission(SecurityAction.Demand, ControlThread = true)]

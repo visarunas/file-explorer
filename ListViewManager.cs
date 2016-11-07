@@ -122,14 +122,6 @@ namespace FileExplorer
 			{
 				Debug.WriteLine(e.Message);
 			}
-
-
-
-			/*foreach (FileSystemInfo file in Dir.GetFileSystemInfos())
-			{
-				//AddFile(file);
-			}
-			*/
 		}
 
 	}
