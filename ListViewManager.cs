@@ -84,7 +84,7 @@ namespace FileExplorer
 			}
 		}
 
-		private void ClearListView()
+		public void ClearListView()
 		{
 			if (fileExplorer.InvokeRequired)
 			{
@@ -105,8 +105,6 @@ namespace FileExplorer
 		public void DisplayDirectory(DirectoryInfo Dir)
 		{
 			ClearListView();
-
-			//DirectorySecurity sec = Dir.GetAccessControl();
 
 			try
 			{

@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ListViewFiller.cs" />
+    <Compile Include="DirectoryDisplayer.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FileExplorer.cs">
       <SubType>Form</SubType>
@@ -56,13 +58,14 @@
     <Compile Include="ListViewManager.cs" />
     <Compile Include="FileOperator.cs" />
     <Compile Include="IconHelper.cs" />
-    <Compile Include="IconListManager.cs" />
     <Compile Include="ListViewColumnManager.cs" />
     <Compile Include="ListViewFileItem.cs" />
     <Compile Include="ListViewNF.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="SearchDisplayer.cs" />
     <Compile Include="SpecialDirectories.cs" />
+    <Compile Include="SystemDriveDisplayer.cs" />
     <Compile Include="UndoRedoList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

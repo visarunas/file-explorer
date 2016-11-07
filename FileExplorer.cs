@@ -40,7 +40,7 @@ namespace FileExplorer
 					dir = new DirectoryInfo(value.ToString() + @"\");
 				}
 				OnDirectoryChanged?.Invoke(this, new EventArgs());
-				setPathTextBoxText(Dir.ToString());
+				setPathTextBoxText(dir.ToString());
 			}
 		}
 
@@ -48,14 +48,19 @@ namespace FileExplorer
 		private FileOperator fileOperator;
 		private ListViewManager fileListViewUpdater;
 		private Thread searchThread, loadThread;
+		private DirectoryDisplayer directoryDisplayer;
+		private SystemDriveDisplayer systemDriveDisplayer;
+		private SearchDisplayer searchDisplayer;
 
 		public FileExplorer()
 		{
 			InitializeComponent();
-
 			//OnDirectoryChanged += pathTextBox_Validated;
 
 			fileListViewUpdater = new ListViewManager(listView, imageList, this);
+			directoryDisplayer = new DirectoryDisplayer(fileListViewUpdater);
+			systemDriveDisplayer = new SystemDriveDisplayer(fileListViewUpdater);
+			searchDisplayer = new SearchDisplayer(fileListViewUpdater);
 			pathList = new UndoRedoList();
 			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
 			
@@ -135,7 +140,7 @@ namespace FileExplorer
 
 		private void listView_DoubleClick(object sender, EventArgs e)
 		{
-			ListView.SelectedListViewItemCollection itemCollection = listView.SelectedItems;
+			SelectedListViewItemCollection itemCollection = listView.SelectedItems;
 			ListViewFileItem item = (ListViewFileItem)itemCollection[0];
 
 			if (item.Attributes.HasFlag(FileAttributes.Directory))
@@ -154,15 +159,13 @@ namespace FileExplorer
 			{
 				Dir = new DirectoryInfo(path);
 				killThread(loadThread);
-				loadThread = new Thread( () => DisplayCurrentDirectory() );
+				loadThread = new Thread( () => directoryDisplayer.FillListView(listView, Dir) );
 				loadThread.Start();
-				//DisplayCurrentDirectory();
 				if (addToPathList)
 				{
 					string currentPath = Dir.ToString();
 					pathList.AddNext(() => ChangeDirectory(currentPath, false));
 				}
-				Debug.WriteLine("Changed Directory to: " + Dir.ToString());
 			}
 			else
 			{
@@ -173,20 +176,10 @@ namespace FileExplorer
 					pathList.AddNext( () => ChangeDirectory(null, false) );
 				}
 				//pathList.AddNext(path);
-				DislaySystemDrives();
+				systemDriveDisplayer.FillListView();
 
 			}
 			
-		}
-
-		private void DislaySystemDrives()
-		{
-			fileListViewUpdater.DisplaySystemDrives();
-		}
-
-		private void DisplayCurrentDirectory()
-		{
-			fileListViewUpdater.DisplayDirectory(Dir);
 		}
 
 		private void buttonBack_Click(object sender, EventArgs e)
@@ -227,48 +220,22 @@ namespace FileExplorer
 
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
+			killThread(searchThread);
 			pathList.Undo().Invoke();
-			//Debug.WriteLine("Undo Directory to: " + Dir.ToString());
 		}
 
 		private void buttonRedo_Click(object sender, EventArgs e)
 		{
+			killThread(searchThread);
 			pathList.Redo().Invoke();
-			//Debug.WriteLine("Redo Directory to: " + Dir.ToString());
-		}
-
-		public void SearchForFile(string searchName, DirectoryInfo dir)
-		{
-
-			var listViewManager = new ListViewManager(listView, imageList, this);
-
-			SearchAll(searchName, dir, listViewManager);
-
-		}
-
-		private void SearchAll(string searchName, DirectoryInfo dir, ListViewManager listViewManager)
-		{
-			try
-			{
-				foreach (FileSystemInfo file in dir.GetFileSystemInfos())
-				{
-					if (file.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase))
-					{
-						listViewManager.AddFile(file);
-					}
-					if (file.Attributes.HasFlag(FileAttributes.Directory))
-					{
-						SearchAll(searchName, new DirectoryInfo(file.FullName), listViewManager);
-					}
-				}
-			}
-			catch (UnauthorizedAccessException e)
-			{
-				Debug.WriteLine(e.Message);
-			}
 		}
 
 		private void searchTextBox_Validated(object sender, EventArgs e)
+		{
+			SearchForFile(searchTextBox.Text);
+		}
+
+		private void SearchForFile(string searchName, bool addToPathList = true)
 		{
 			if (searchTextBox.Text == "Search")
 			{
@@ -276,24 +243,15 @@ namespace FileExplorer
 			}
 			else
 			{
-				listView.Clear();
-				imageList.Images.Clear();
-				var columnManager = new ListViewColumnManager(listView);
-				columnManager.addColumn("Name", 400);
-				string searchName = searchTextBox.Text;
-
-
+				if (addToPathList)
+				{
+					pathList.AddNext(() => SearchForFile(searchName, false));
+				}
 				killThread(searchThread);
-				searchThread = new Thread( () => SearchForFile(searchName, Dir));
-
+				searchThread = new Thread(() => searchDisplayer.FillListView(searchName, Dir));
 				searchThread.Start();
 
-
-				//SearchFile(searchName, Dir);
-
-
 			}
-
 		}
 
 		private void viewListContext_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
