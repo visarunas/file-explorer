@@ -27,17 +27,26 @@ namespace FileExplorer
 
 		public void PasteFile(string pathToPaste)
 		{
+			Task copyTask = new Task( () => Paste(pathToPaste) );
+			copyTask.Start();
+
+		}
+
+		private void Paste(string pathToPaste)
+		{
 			if (selectedItems != null)
 			{
-				foreach (ListViewFileItem item in selectedItems)
+				foreach (ListViewFileItem file in selectedItems)
 				{
-					if (item.Attributes.HasFlag(FileAttributes.Directory))
+					if (file.Attributes.HasFlag(FileAttributes.Directory))
 					{
-						DirectoryCopy(item.Name, Path.Combine(pathToPaste, item.Text), true);
+						//DirectoryCopy(file.Name, Path.Combine(pathToPaste, file.Text), true);
+						FileSystem.CopyDirectory(file.Name, Path.Combine(pathToPaste, file.Text), UIOption.AllDialogs, UICancelOption.DoNothing);
 					}
 					else
 					{
-						File.Copy(item.Name, Path.Combine(pathToPaste, item.Text), true);
+						//File.Copy(file.Name, Path.Combine(pathToPaste, file.Text), true);
+						FileSystem.CopyFile(file.Name, Path.Combine(pathToPaste, file.Text), UIOption.AllDialogs, UICancelOption.DoNothing);
 					}
 				}
 			}
@@ -45,10 +54,22 @@ namespace FileExplorer
 
 		public void DeleteFile(ListViewFileItem[] files)
 		{
+			Task deleteTask = new Task( () => Delete(files) );
+			deleteTask.Start();
+		}
+
+		private void Delete(ListViewFileItem[] files)
+		{
 			foreach(ListViewFileItem file in files)
 			{
-				FileSystem.DeleteFile(file.Name, UIOption.AllDialogs, RecycleOption.SendToRecycleBin);
-				//File.Delete(file.Name);
+				if (file.Attributes.HasFlag(FileAttributes.Directory))
+				{
+					FileSystem.DeleteDirectory(file.Name, UIOption.AllDialogs, RecycleOption.SendToRecycleBin);
+				}
+				else
+				{
+					FileSystem.DeleteFile(file.Name, UIOption.AllDialogs, RecycleOption.SendToRecycleBin);
+				}
 				
 			}	
 		}

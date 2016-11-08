@@ -52,16 +52,16 @@ namespace FileExplorer
 		private SystemDriveDisplayer systemDriveDisplayer;
 		private SearchDisplayer searchDisplayer;
 
-		
-
 		public FileExplorer()
 		{
 			InitializeComponent();
 			//OnDirectoryChanged += pathTextBox_Validated;
+			//Properties.Settings.Default.FirstUserSetting = "abc";
 
 			listViewManager = new ListViewManager(listView, imageList, this);
 			directoryDisplayer = new DirectoryDisplayer(listViewManager);
 			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager);
+			//searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(listViewManager) );
 			searchDisplayer = new SearchDisplayer(listViewManager);
 			UndoRedoList = new UndoRedoList();
 			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
@@ -89,7 +89,7 @@ namespace FileExplorer
 			ChangeDirectory(Dir.ToString());
 
 			searchDisplayer.LoadingFinished += delegate
-			{ indicatorPictureBox.Image = Properties.Resources.finishedLoadingImage; };
+			{ indicatorPictureBox.Image = null; };
 
 			searchDisplayer.LoadingStarted += delegate
 			{ indicatorPictureBox.Image = Properties.Resources.loadingImage; };
@@ -123,7 +123,7 @@ namespace FileExplorer
 		{
 			//Stopwatch sw = new Stopwatch();
 			//sw.Start();
-
+			searchDisplayer.Stop();
 			ChangeDirectory(pathTextBox.Text);
 
 			//sw.Stop();
@@ -170,7 +170,7 @@ namespace FileExplorer
 				if (addToPathList)
 				{
 					string currentPath = Dir.ToString();
-					UndoRedoList.AddNext(() => ChangeDirectory(currentPath, false));
+					UndoRedoList.AddNext( () => ChangeDirectory(currentPath, false) );
 				}
 			}
 			else
@@ -190,7 +190,7 @@ namespace FileExplorer
 
 		private void buttonBack_Click(object sender, EventArgs e)
 		{
-			killThread(searchThread);
+			searchDisplayer.Stop();
 			if (Dir.Parent != null)
 			{
 				ChangeDirectory(Dir.Parent.FullName);
@@ -226,13 +226,13 @@ namespace FileExplorer
 
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
-			killThread(searchThread);
+			searchDisplayer.Stop();
 			UndoRedoList.Undo().Invoke();
 		}
 
 		private void buttonRedo_Click(object sender, EventArgs e)
 		{
-			killThread(searchThread);
+			searchDisplayer.Stop();
 			UndoRedoList.Redo().Invoke();
 		}
 
@@ -251,10 +251,11 @@ namespace FileExplorer
 			{
 				if (addToPathList)
 				{
-					UndoRedoList.AddNext(() => SearchForFile(searchName, false));
+					UndoRedoList.AddNext( () => SearchForFile(searchName, false) );
 				}
-				killThread(searchThread);
-				searchThread = new Thread(() => searchDisplayer.FillListView(searchName, Dir));
+				//killThread(searchThread);
+				searchDisplayer.Stop();
+				searchThread = new Thread( () => searchDisplayer.FillListView(searchName, Dir) );
 				searchThread.Start();
 
 			}
@@ -276,14 +277,7 @@ namespace FileExplorer
 			{
 				var arr = new ListViewFileItem[getSelectedItems().Count];
 				getSelectedItems().CopyTo(arr, 0);
-				var confirmResult = MessageBox.Show("Are you sure to delete this item ??",
-									 "Confirm Delete!!",
-									 MessageBoxButtons.YesNo);
-				if (confirmResult == DialogResult.Yes)
-				{
-					fileOperator.DeleteFile(arr);
-					listViewManager.DeleteItems(arr);
-				}		
+				fileOperator.DeleteFile(arr);
 			}
 		}
 

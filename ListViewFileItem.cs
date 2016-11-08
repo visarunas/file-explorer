@@ -10,6 +10,8 @@ namespace FileExplorer
 	public class ListViewFileItem : ListViewItem
 	{
 		public System.IO.FileAttributes Attributes { get; set; }
+		public long Size { get; set; } = 0;
+		public DateTime CreationDate { get; set; }
 
 		public ListViewFileItem(string text) : base(text) { }
 	}

@@ -92,6 +92,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="User.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -108,13 +109,16 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\loadingImage.bmp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\AssemblyError_16x_32.bmp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Asterisk_32x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Loading_Blue_32x.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Loading_BlueFast_16x.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

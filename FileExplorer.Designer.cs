@@ -1,4 +1,6 @@
-﻿namespace FileExplorer
+﻿using FileExplorerControls;
+
+namespace FileExplorer
 {
 	partial class FileExplorer
 	{
@@ -39,8 +41,8 @@
 			this.buttonRedo = new System.Windows.Forms.Button();
 			this.buttonBack = new System.Windows.Forms.Button();
 			this.searchTextBox = new System.Windows.Forms.TextBox();
-			this.listView = new ListViewNF();
 			this.indicatorPictureBox = new System.Windows.Forms.PictureBox();
+			this.listView = new FileExplorerControls.ListViewNF();
 			this.viewListContext.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.indicatorPictureBox)).BeginInit();
 			this.SuspendLayout();
@@ -88,7 +90,7 @@
 			this.pathTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.pathTextBox.Location = new System.Drawing.Point(173, 21);
 			this.pathTextBox.Name = "pathTextBox";
-			this.pathTextBox.Size = new System.Drawing.Size(505, 29);
+			this.pathTextBox.Size = new System.Drawing.Size(504, 29);
 			this.pathTextBox.TabIndex = 4;
 			this.pathTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pathTextBox_KeyDown);
 			this.pathTextBox.Validated += new System.EventHandler(this.pathTextBox_Validated);
@@ -137,6 +139,15 @@
 			this.searchTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.searchTextBox.Validated += new System.EventHandler(this.searchTextBox_Validated);
 			// 
+			// indicatorPictureBox
+			// 
+			this.indicatorPictureBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.indicatorPictureBox.Location = new System.Drawing.Point(683, 21);
+			this.indicatorPictureBox.Name = "indicatorPictureBox";
+			this.indicatorPictureBox.Size = new System.Drawing.Size(21, 21);
+			this.indicatorPictureBox.TabIndex = 5;
+			this.indicatorPictureBox.TabStop = false;
+			// 
 			// listView
 			// 
 			this.listView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -149,16 +160,6 @@
 			this.listView.TabIndex = 1;
 			this.listView.UseCompatibleStateImageBehavior = false;
 			this.listView.DoubleClick += new System.EventHandler(this.listView_DoubleClick);
-			// 
-			// indicatorPictureBox
-			// 
-			this.indicatorPictureBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-			this.indicatorPictureBox.Image = global::FileExplorer.Properties.Resources.finishedLoadingImage;
-			this.indicatorPictureBox.Location = new System.Drawing.Point(684, 18);
-			this.indicatorPictureBox.Name = "indicatorPictureBox";
-			this.indicatorPictureBox.Size = new System.Drawing.Size(32, 32);
-			this.indicatorPictureBox.TabIndex = 5;
-			this.indicatorPictureBox.TabStop = false;
 			// 
 			// FileExplorer
 			// 
@@ -199,6 +200,7 @@
 		private ListViewNF listView;
 		private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
 		private System.Windows.Forms.PictureBox indicatorPictureBox;
+
 	}
 }
 

@@ -15,12 +15,14 @@ namespace FileExplorer
 		private ListView listView;
 		private ImageList imageList;
 		private Form fileExplorer;
+		private ListViewColumnManager columnManager;
 
 		public ListViewManager(ListView listView, ImageList imageList, Form fileExplorer)
 		{
 			this.listView = listView;
 			this.imageList = imageList;
 			this.fileExplorer = fileExplorer;
+			columnManager = new ListViewColumnManager(listView);
 		}
 
 		public void AddFile(FileSystemInfo file)
@@ -30,6 +32,7 @@ namespace FileExplorer
 			item.Attributes = file.Attributes;
 			item.Name = file.FullName;
 			item.ImageKey = item.Name;
+			item.CreationDate = file.CreationTime;
 			Icon icon;
 			if (file.Attributes.HasFlag(FileAttributes.Directory))
 			{
@@ -38,6 +41,7 @@ namespace FileExplorer
 			else
 			{
 				icon = IconReader.GetFileIcon(file.FullName, IconReader.IconSize.Large, false);
+				item.Size = new FileInfo(file.FullName).Length;
 			}
 			AddListViewItem(item, icon);
 		}
@@ -64,9 +68,9 @@ namespace FileExplorer
 
 		}
 
-		delegate void SetListViewCallback(ListViewItem item, Icon icon);
+		delegate void SetListViewCallback(ListViewFileItem item, Icon icon);
 
-		private void AddListViewItem(ListViewItem item, Icon icon)
+		private void AddListViewItem(ListViewFileItem item, Icon icon)
 		{
 			// InvokeRequired required compares the thread ID of the
 			// calling thread to the thread ID of the creating thread.
@@ -78,9 +82,24 @@ namespace FileExplorer
 			}
 			else
 			{
+				if (item.Size != 0)
+				{
+					item.SubItems.Add(item.Size.ToString());
+				}
+				else
+				{
+					item.SubItems.Add("");
+				}
+				if (item.CreationDate == default(DateTime))
+				{
+					item.SubItems.Add("");
+				}
+				else
+				{
+					item.SubItems.Add(item.CreationDate.ToShortDateString() + "  " + item.CreationDate.ToShortTimeString());
+				}
 				imageList.Images.Add(item.ImageKey, icon);
 				listView.Items.Add(item);
-				//listView.Refresh();
 			}
 		}
 
@@ -97,8 +116,9 @@ namespace FileExplorer
 				listView.Clear();
 
 				//TODO this is temp
-				var columnManager = new ListViewColumnManager(listView);
 				columnManager.addColumn("Name", 400);
+				columnManager.addColumn("Size", 100);
+				columnManager.addColumn("Creation date", 400);
 			}
 		}
 
@@ -122,9 +142,5 @@ namespace FileExplorer
 			}
 		}
 
-		public void DeleteItems(ListViewFileItem[] arr)
-		{
-			throw new NotImplementedException();
-		}
 	}
 }
