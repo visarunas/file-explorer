@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DirectoryColumnManager.cs" />
+    <Compile Include="IColumnSetter.cs" />
     <Compile Include="ListViewFiller.cs" />
     <Compile Include="DirectoryDisplayer.cs" />
     <Compile Include="Extensions.cs" />

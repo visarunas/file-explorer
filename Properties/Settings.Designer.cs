@@ -23,12 +23,66 @@ namespace FileExplorer.Properties {
             }
         }
         
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("400")]
+        public int DirectoryColumn1_size {
+            get {
+                return ((int)(this["DirectoryColumn1_size"]));
+            }
+            set {
+                this["DirectoryColumn1_size"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public int DirectoryColumn2_size {
+            get {
+                return ((int)(this["DirectoryColumn2_size"]));
+            }
+            set {
+                this["DirectoryColumn2_size"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public int DirectoryColumn3_size {
+            get {
+                return ((int)(this["DirectoryColumn3_size"]));
+            }
+            set {
+                this["DirectoryColumn3_size"] = value;
+            }
+        }
+        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string pathText {
+        [global::System.Configuration.DefaultSettingValueAttribute("Name")]
+        public string DirectoryColumn1_name {
             get {
-                return ((string)(this["pathText"]));
+                return ((string)(this["DirectoryColumn1_name"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Size")]
+        public string DirectoryColumn2_name {
+            get {
+                return ((string)(this["DirectoryColumn2_name"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Creation date")]
+        public string DirectoryColumn3_name {
+            get {
+                return ((string)(this["DirectoryColumn3_name"]));
             }
         }
     }

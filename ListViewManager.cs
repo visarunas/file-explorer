@@ -15,35 +15,33 @@ namespace FileExplorer
 		private ListView listView;
 		private ImageList imageList;
 		private Form fileExplorer;
-		private ListViewColumnManager columnManager;
+
+		delegate void SetListViewCallback(ListViewItem item, Icon icon);
 
 		public ListViewManager(ListView listView, ImageList imageList, Form fileExplorer)
 		{
 			this.listView = listView;
 			this.imageList = imageList;
 			this.fileExplorer = fileExplorer;
-			columnManager = new ListViewColumnManager(listView);
+		}
+
+		public void SetColumns(IColumnManager columns)
+		{
+			if (fileExplorer.InvokeRequired)
+			{
+				MethodInvoker d = delegate { SetColumns(columns); };
+				fileExplorer.Invoke(d, new object[] { columns });
+			}
+			else
+			{
+				columns.SetColumns(listView);
+			}
 		}
 
 		public void AddFile(FileSystemInfo file)
 		{
-
-			ListViewFileItem item = new ListViewFileItem(file.Name);
-			item.Attributes = file.Attributes;
-			item.Name = file.FullName;
-			item.ImageKey = item.Name;
-			item.CreationDate = file.CreationTime;
-			Icon icon;
-			if (file.Attributes.HasFlag(FileAttributes.Directory))
-			{
-				icon = IconReader.GetFolderIcon(file.FullName, IconReader.IconSize.Large, IconReader.FolderType.Open);
-			}
-			else
-			{
-				icon = IconReader.GetFileIcon(file.FullName, IconReader.IconSize.Large, false);
-				item.Size = new FileInfo(file.FullName).Length;
-			}
-			AddListViewItem(item, icon);
+			
+			//AddListViewItem(item, icon);
 		}
 
 		public void AddDrive(DriveInfo drive)
@@ -68,9 +66,7 @@ namespace FileExplorer
 
 		}
 
-		delegate void SetListViewCallback(ListViewFileItem item, Icon icon);
-
-		private void AddListViewItem(ListViewFileItem item, Icon icon)
+		public void AddListViewItem(ListViewItem item, Icon icon)
 		{
 			// InvokeRequired required compares the thread ID of the
 			// calling thread to the thread ID of the creating thread.
@@ -82,22 +78,6 @@ namespace FileExplorer
 			}
 			else
 			{
-				if (item.Size != 0)
-				{
-					item.SubItems.Add(item.Size.ToString());
-				}
-				else
-				{
-					item.SubItems.Add("");
-				}
-				if (item.CreationDate == default(DateTime))
-				{
-					item.SubItems.Add("");
-				}
-				else
-				{
-					item.SubItems.Add(item.CreationDate.ToShortDateString() + "  " + item.CreationDate.ToShortTimeString());
-				}
 				imageList.Images.Add(item.ImageKey, icon);
 				listView.Items.Add(item);
 			}
@@ -115,10 +95,6 @@ namespace FileExplorer
 				imageList.Images.Clear();
 				listView.Clear();
 
-				//TODO this is temp
-				columnManager.addColumn("Name", 400);
-				columnManager.addColumn("Size", 100);
-				columnManager.addColumn("Creation date", 400);
 			}
 		}
 

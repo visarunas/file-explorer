@@ -12,7 +12,7 @@ namespace FileExplorer
 	{
 		private bool SearchStopped { get; set; } = false;
 
-		public SearchDisplayer(ListViewManager listViewManager) : base(listViewManager)
+		public SearchDisplayer(ListViewManager listViewManager, IColumnManager columns) : base(listViewManager, columns)
 		{
 
 		}

@@ -51,6 +51,7 @@ namespace FileExplorer
 		private DirectoryDisplayer directoryDisplayer;
 		private SystemDriveDisplayer systemDriveDisplayer;
 		private SearchDisplayer searchDisplayer;
+		private DirectoryColumnManager columns;
 
 		public FileExplorer()
 		{
@@ -58,11 +59,16 @@ namespace FileExplorer
 			//OnDirectoryChanged += pathTextBox_Validated;
 			//Properties.Settings.Default.FirstUserSetting = "abc";
 
+			columns = new DirectoryColumnManager();
+			columns.AddColumn(Properties.Settings.Default.DirectoryColumn1_name, Properties.Settings.Default.DirectoryColumn1_size);
+			columns.AddColumn(Properties.Settings.Default.DirectoryColumn2_name, Properties.Settings.Default.DirectoryColumn2_size);
+			columns.AddColumn(Properties.Settings.Default.DirectoryColumn3_name, Properties.Settings.Default.DirectoryColumn3_size);
+
 			listViewManager = new ListViewManager(listView, imageList, this);
-			directoryDisplayer = new DirectoryDisplayer(listViewManager);
-			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager);
+			directoryDisplayer = new DirectoryDisplayer(listViewManager, columns);
+			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager, columns);
 			//searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(listViewManager) );
-			searchDisplayer = new SearchDisplayer(listViewManager);
+			searchDisplayer = new SearchDisplayer(listViewManager, columns);
 			UndoRedoList = new UndoRedoList();
 			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
 			
@@ -165,7 +171,7 @@ namespace FileExplorer
 			{
 				Dir = new DirectoryInfo(path);
 				killThread(loadThread);
-				loadThread = new Thread( () => directoryDisplayer.FillListView(listView, Dir) );
+				loadThread = new Thread( () => directoryDisplayer.FillListView(Dir) );
 				loadThread.Start();
 				if (addToPathList)
 				{

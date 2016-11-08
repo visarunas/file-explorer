@@ -9,7 +9,7 @@ namespace FileExplorer
 {
 	public class SystemDriveDisplayer : ListViewFiller
 	{
-		public SystemDriveDisplayer(ListViewManager listViewManager) : base(listViewManager)
+		public SystemDriveDisplayer(ListViewManager listViewManager, IColumnManager columns) : base(listViewManager, columns)
 		{
 
 		}
