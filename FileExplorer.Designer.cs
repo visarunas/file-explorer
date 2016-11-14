@@ -159,6 +159,7 @@ namespace FileExplorer
 			this.listView.Size = new System.Drawing.Size(960, 593);
 			this.listView.TabIndex = 1;
 			this.listView.UseCompatibleStateImageBehavior = false;
+			this.listView.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.listView_ColumnWidthChanged);
 			this.listView.DoubleClick += new System.EventHandler(this.listView_DoubleClick);
 			// 
 			// FileExplorer
@@ -179,6 +180,7 @@ namespace FileExplorer
 			this.Name = "FileExplorer";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "File Explorer";
+			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FileExplorer_FormClosed);
 			this.viewListContext.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.indicatorPictureBox)).EndInit();
 			this.ResumeLayout(false);

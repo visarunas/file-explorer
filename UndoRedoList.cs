@@ -5,12 +5,12 @@ using System.Windows.Forms;
 
 namespace FileExplorer
 {
-	public class UndoRedoList
+	public class UndoRedoStack
 	{
 		Stack<Action> undoStack = new Stack<Action>();
 		Stack<Action> redoStack = new Stack<Action>();
 
-		public UndoRedoList()
+		public UndoRedoStack()
 		{
 		}
 
@@ -57,6 +57,16 @@ namespace FileExplorer
 			}
 			else
 				return undoStack.Peek();
+		}
+
+		public Action GetCurrent()
+		{
+			if (undoStack.Count != 0)
+			{
+				return undoStack.Peek();
+			}
+			else
+				throw new EmptyStackException("UndoRedoStack is empty");
 		}
 	}
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FileExplorer
 {
-	public class ListViewFiller
+	public abstract class ListViewFiller
 	{
 		protected ListViewManager listViewManager;
 		public event EventHandler LoadingFinished, LoadingStarted;

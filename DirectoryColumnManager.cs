@@ -7,11 +7,11 @@ namespace FileExplorer
 {
 	public class DirectoryColumnManager : IColumnManager
 	{
-		private List<ColumnHeader> columns;
+		public List<ColumnHeader> Columns { get; private set; }
 
 		public DirectoryColumnManager()
 		{
-			columns = new List<ColumnHeader>();
+			Columns = new List<ColumnHeader>();
 			AddColumn(Properties.Settings.Default.DirectoryColumn1_name, Properties.Settings.Default.DirectoryColumn1_size);
 			AddColumn(Properties.Settings.Default.DirectoryColumn2_name, Properties.Settings.Default.DirectoryColumn2_size);
 			AddColumn(Properties.Settings.Default.DirectoryColumn3_name, Properties.Settings.Default.DirectoryColumn3_size);
@@ -24,8 +24,9 @@ namespace FileExplorer
 			ch.Text = name;
 			ch.Width = width;
 
-			columns.Add(ch);
+			Columns.Add(ch);
 		}
+
 
 		public void AddSubItem(FileSystemInfo file, ListViewItem item)
 		{
@@ -53,13 +54,21 @@ namespace FileExplorer
 
 		public void ClearColumns()
 		{
-			columns.Clear();
+			Columns.Clear();
 		}
 
 		public void SetColumns(ListView listView)
 		{
 			listView.Columns.Clear();
-			listView.Columns.AddRange(columns.ToArray());
+			listView.Columns.AddRange(Columns.ToArray());
+		}
+
+		public void UpdateColumnWidths()
+		{
+			Properties.Settings.Default.DirectoryColumn1_size = Columns[0].Width;
+			Properties.Settings.Default.DirectoryColumn2_size = Columns[1].Width;
+			Properties.Settings.Default.DirectoryColumn3_size = Columns[2].Width;
+
 		}
 	}
 }

@@ -48,7 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DirectoryColumnManager.cs" />
-    <Compile Include="IColumnSetter.cs" />
+    <Compile Include="EmptyStackException.cs" />
+    <Compile Include="IColumnManager.cs" />
     <Compile Include="ListViewFiller.cs" />
     <Compile Include="DirectoryDisplayer.cs" />
     <Compile Include="Extensions.cs" />

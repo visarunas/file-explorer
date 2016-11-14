@@ -42,7 +42,7 @@ namespace FileExplorer
 			}
 		}
 
-		private UndoRedoList UndoRedoList;
+		private UndoRedoStack UndoRedoList;
 		private FileOperator fileOperator;
 		private ListViewManager listViewManager;
 		private Task searchThread, loadThread;
@@ -64,7 +64,7 @@ namespace FileExplorer
 			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager, dirColumns);
 			//searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(listViewManager) );
 			searchDisplayer = new SearchDisplayer(listViewManager, dirColumns);
-			UndoRedoList = new UndoRedoList();
+			UndoRedoList = new UndoRedoStack();
 			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
 			
 
@@ -77,13 +77,13 @@ namespace FileExplorer
 			searchTextBox.GotFocus += searchTextBox_GotFocus;
 			searchTextBox.LostFocus += searchTextBox_LostFocus;
 
-			ChangeDirectory(Dir.ToString());
-
 			searchDisplayer.LoadingFinished += delegate
 			{ indicatorPictureBox.Image = null; };
 
 			searchDisplayer.LoadingStarted += delegate
 			{ indicatorPictureBox.Image = Properties.Resources.loadingImage; };
+
+			ChangeDirectory(Dir.ToString());
 
 		}
 
@@ -157,16 +157,12 @@ namespace FileExplorer
 			else
 			{
 				setPathTextBoxText("This PC");
-				Debug.WriteLine("Drive info");
 				if (addToPathList)
 				{
 					UndoRedoList.AddNext( () => ChangeDirectory(null, false) );
 				}
-				//pathList.AddNext(path);
 				systemDriveDisplayer.FillListView();
-
 			}
-			
 		}
 
 		private void buttonBack_Click(object sender, EventArgs e)
@@ -194,13 +190,11 @@ namespace FileExplorer
 
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
-			//StopProcesses();
 			UndoRedoList.Undo().Invoke();
 		}
 
 		private void buttonRedo_Click(object sender, EventArgs e)
 		{
-			//StopProcesses();
 			UndoRedoList.Redo().Invoke();
 		}
 
@@ -228,6 +222,19 @@ namespace FileExplorer
 			}
 		}
 
+		private void RefreshView()
+		{
+			try
+			{
+				UndoRedoList.GetCurrent().Invoke();
+			}
+			catch (EmptyStackException e)
+			{
+				Console.WriteLine(e.Message);
+			}
+			
+		}
+
 		private void viewListContext_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
 			if (e.ClickedItem == copyToolStripMenuItem)
@@ -246,6 +253,16 @@ namespace FileExplorer
 				getSelectedItems().CopyTo(arr, 0);
 				fileOperator.DeleteFile(arr);
 			}
+		}
+
+		private void listView_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
+		{
+			dirColumns.UpdateColumnWidths();
+		}
+
+		private void FileExplorer_FormClosed(object sender, FormClosedEventArgs e)
+		{
+			Properties.Settings.Default.Save();
 		}
 
 		private SelectedListViewItemCollection getSelectedItems()
