@@ -1,8 +1,9 @@
-﻿using System.Windows.Forms;
+﻿using System.IO;
+using System.Windows.Forms;
 
 namespace FileExplorer
 {
-	public interface IColumnManager
+	public interface IColumnManager 
 	{
 		void SetColumns(ListView listView);
 
@@ -10,5 +11,6 @@ namespace FileExplorer
 
 		void ClearColumns();
 
+		void AddSubItem(FileSystemInfo file, ListViewItem item);
 	}
 }

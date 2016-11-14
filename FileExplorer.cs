@@ -19,8 +19,6 @@ namespace FileExplorer
 {
 	public partial class FileExplorer : Form
 	{
-		public event EventHandler OnDirectoryChanged;
-
 		private DirectoryInfo dir;
 		public DirectoryInfo Dir {
 			get {
@@ -39,19 +37,19 @@ namespace FileExplorer
 				{
 					dir = new DirectoryInfo(value.ToString() + @"\");
 				}
-				OnDirectoryChanged?.Invoke(this, new EventArgs());
 				setPathTextBoxText(dir.ToString());
+				pathTextBox.Refresh();
 			}
 		}
 
 		private UndoRedoList UndoRedoList;
 		private FileOperator fileOperator;
 		private ListViewManager listViewManager;
-		private Thread searchThread, loadThread;
+		private Task searchThread, loadThread;
 		private DirectoryDisplayer directoryDisplayer;
 		private SystemDriveDisplayer systemDriveDisplayer;
 		private SearchDisplayer searchDisplayer;
-		private DirectoryColumnManager columns;
+		private IColumnManager dirColumns;
 
 		public FileExplorer()
 		{
@@ -59,35 +57,22 @@ namespace FileExplorer
 			//OnDirectoryChanged += pathTextBox_Validated;
 			//Properties.Settings.Default.FirstUserSetting = "abc";
 
-			columns = new DirectoryColumnManager();
-			columns.AddColumn(Properties.Settings.Default.DirectoryColumn1_name, Properties.Settings.Default.DirectoryColumn1_size);
-			columns.AddColumn(Properties.Settings.Default.DirectoryColumn2_name, Properties.Settings.Default.DirectoryColumn2_size);
-			columns.AddColumn(Properties.Settings.Default.DirectoryColumn3_name, Properties.Settings.Default.DirectoryColumn3_size);
-
-			listViewManager = new ListViewManager(listView, imageList, this);
-			directoryDisplayer = new DirectoryDisplayer(listViewManager, columns);
-			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager, columns);
+			dirColumns = new DirectoryColumnManager();
+			
+			listViewManager = new ListViewManager(listView, imageList);
+			directoryDisplayer = new DirectoryDisplayer(listViewManager, dirColumns);
+			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager, dirColumns);
 			//searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(listViewManager) );
-			searchDisplayer = new SearchDisplayer(listViewManager, columns);
+			searchDisplayer = new SearchDisplayer(listViewManager, dirColumns);
 			UndoRedoList = new UndoRedoList();
 			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
 			
 
 			listView.LargeImageList = imageList;
 			listView.SmallImageList = imageList;
+			listView.View = View.Details;
 
-			bool largeList = false;
-			if (largeList)
-			{
-				listView.View = View.LargeIcon;
-			}
-			else
-			{
-				
-				listView.View = View.Details;
-			}
-
-			imageList.ImageSize = new Size(32, 32);
+			imageList.ImageSize = new Size(Properties.Settings.Default.Icon_size, Properties.Settings.Default.Icon_size);
 			fileOperator = new FileOperator();
 			searchTextBox.GotFocus += searchTextBox_GotFocus;
 			searchTextBox.LostFocus += searchTextBox_LostFocus;
@@ -127,14 +112,7 @@ namespace FileExplorer
 
 		private void pathTextBox_Validated(object sender, EventArgs e)
 		{
-			//Stopwatch sw = new Stopwatch();
-			//sw.Start();
-			searchDisplayer.Stop();
 			ChangeDirectory(pathTextBox.Text);
-
-			//sw.Stop();
-			//Debug.WriteLine("Elapsed={0}", sw.Elapsed);
-
 		}
 
 		private void pathTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -145,13 +123,9 @@ namespace FileExplorer
 			}
 		}
 
-		private SelectedListViewItemCollection getSelectedItems()
+		private async void listView_DoubleClick(object sender, EventArgs e)
 		{
-			return listView.SelectedItems;
-		}
-
-		private void listView_DoubleClick(object sender, EventArgs e)
-		{
+			await StopProcesses();
 			SelectedListViewItemCollection itemCollection = listView.SelectedItems;
 			ListViewFileItem item = (ListViewFileItem)itemCollection[0];
 
@@ -165,14 +139,15 @@ namespace FileExplorer
 			}
 		}
 
-		public void ChangeDirectory(string path, bool addToPathList = true)
+		public async void ChangeDirectory(string path, bool addToPathList = true)
 		{
+			await StopProcesses();
 			if (path != string.Empty && path != null)
 			{
 				Dir = new DirectoryInfo(path);
-				killThread(loadThread);
-				loadThread = new Thread( () => directoryDisplayer.FillListView(Dir) );
+				loadThread = new Task( () => directoryDisplayer.FillListView(Dir) );
 				loadThread.Start();
+
 				if (addToPathList)
 				{
 					string currentPath = Dir.ToString();
@@ -196,7 +171,6 @@ namespace FileExplorer
 
 		private void buttonBack_Click(object sender, EventArgs e)
 		{
-			searchDisplayer.Stop();
 			if (Dir.Parent != null)
 			{
 				ChangeDirectory(Dir.Parent.FullName);
@@ -208,37 +182,25 @@ namespace FileExplorer
 			
 		}
 
-		private void FileExplorer_FormClosed(object sender, FormClosedEventArgs e)
+		private async Task StopProcesses()
 		{
+			directoryDisplayer.Stop();
+			searchDisplayer.Stop();
 			if (searchThread != null)
-			{
-				searchThread.Abort();
-			}
+				await Task.WhenAll(searchThread);
 			if (loadThread != null)
-			{
-				loadThread.Abort();
-			}
-			//imageList.Dispose();
-			//listView.Dispose();
-		}
-
-		private void listView_MouseClick(object sender, MouseEventArgs e)
-		{
-			if (e.Button == MouseButtons.Right)
-			{
-				
-			}
+				await Task.WhenAll(loadThread);
 		}
 
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
-			searchDisplayer.Stop();
+			//StopProcesses();
 			UndoRedoList.Undo().Invoke();
 		}
 
 		private void buttonRedo_Click(object sender, EventArgs e)
 		{
-			searchDisplayer.Stop();
+			//StopProcesses();
 			UndoRedoList.Redo().Invoke();
 		}
 
@@ -247,7 +209,7 @@ namespace FileExplorer
 			SearchForFile(searchTextBox.Text);
 		}
 
-		private void SearchForFile(string searchName, bool addToPathList = true)
+		private async void SearchForFile(string searchName, bool addToPathList = true)
 		{
 			if (searchTextBox.Text == "Search")
 			{
@@ -255,13 +217,12 @@ namespace FileExplorer
 			}
 			else
 			{
+				await StopProcesses();
 				if (addToPathList)
 				{
 					UndoRedoList.AddNext( () => SearchForFile(searchName, false) );
 				}
-				//killThread(searchThread);
-				searchDisplayer.Stop();
-				searchThread = new Thread( () => searchDisplayer.FillListView(searchName, Dir) );
+				searchThread = new Task( () => searchDisplayer.FillListView(searchName, Dir) );
 				searchThread.Start();
 
 			}
@@ -287,17 +248,9 @@ namespace FileExplorer
 			}
 		}
 
-		
-
-		
-
-		[SecurityPermission(SecurityAction.Demand, ControlThread = true)]
-		private void killThread(Thread thread)
+		private SelectedListViewItemCollection getSelectedItems()
 		{
-			if (thread != null)
-			{
-				thread.Abort();	//TODO Make thread killing safe
-			}
+			return listView.SelectedItems;
 		}
 
 	}

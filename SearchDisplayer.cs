@@ -27,6 +27,7 @@ namespace FileExplorer
 			SearchStopped = false;
 			OnLoadingStarted();
 			listViewManager.ClearListView();
+			listViewManager.SetColumns(columns);
 			SearchAll(searchName, dir);
 			OnLoadingFinished();
 		}
@@ -41,7 +42,18 @@ namespace FileExplorer
 					{
 						if (file.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase))
 						{
-							listViewManager.AddFile(file);
+							ListViewFileItem item = ConvertToListViewFileItem(file);
+							
+							if (file.Attributes.HasFlag(FileAttributes.Directory))	//If Directory
+							{
+								DirectoryInfo dirFile = new DirectoryInfo(file.FullName);
+								columns.AddSubItem(dirFile, item);
+							}
+							else  //If File
+							{
+								columns.AddSubItem((FileInfo)file, item);
+							}
+							listViewManager.AddListViewItem(item, GetFileSystemIcon(file));
 						}
 						if (file.Attributes.HasFlag(FileAttributes.Directory))
 						{

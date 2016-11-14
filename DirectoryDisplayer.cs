@@ -13,13 +13,16 @@ namespace FileExplorer
 {
 	public class DirectoryDisplayer : ListViewFiller
 	{
+		private bool Stopped { get; set; } = false;
+
 		public DirectoryDisplayer(ListViewManager listViewManager, IColumnManager columns) : base(listViewManager, columns)
 		{
-
+			
 		}
 		
 		public void FillListView(DirectoryInfo dir)
 		{
+			Stopped = false;
 			listViewManager.ClearListView();
 			listViewManager.SetColumns(columns);
 			try
@@ -29,10 +32,16 @@ namespace FileExplorer
 
 				foreach (var file in files)
 				{
-					ListViewItem item = ConvertToListViewItem(file);
-					item.SubItems.Add(file.Length.ToString());
-					item.SubItems.Add(file.CreationTime.ToLongDateString());
-					listViewManager.AddListViewItem(item, getFileIcon(file));
+					if (!Stopped)
+					{
+						ListViewFileItem item = ConvertToListViewFileItem(file);
+						columns.AddSubItem(file, item);
+						listViewManager.AddListViewItem(item, GetFileIcon(file));
+					}
+					else
+					{
+						break;
+					}
 				}
 
 				var dirs = from fileSys in dir.EnumerateDirectories()
@@ -40,10 +49,16 @@ namespace FileExplorer
 
 				foreach (var directory in dirs)
 				{
-					ListViewItem item = ConvertToListViewItem(directory);
-					item.SubItems.Add("");
-					item.SubItems.Add(directory.CreationTime.ToLongDateString());
-					listViewManager.AddListViewItem(item, getDirectoryIcon(directory));
+					if (!Stopped)
+					{
+						ListViewFileItem item = ConvertToListViewFileItem(directory);
+						columns.AddSubItem(directory, item);
+						listViewManager.AddListViewItem(item, GetDirectoryIcon(directory));
+					}
+					else
+					{
+						break;
+					}
 				}
 			}
 			catch (UnauthorizedAccessException)
@@ -52,5 +67,9 @@ namespace FileExplorer
 			}
 		}
 
+		public void Stop()
+		{
+			Stopped = true;
+		}
 	}
 }

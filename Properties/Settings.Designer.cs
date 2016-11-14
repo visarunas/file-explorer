@@ -85,5 +85,14 @@ namespace FileExplorer.Properties {
                 return ((string)(this["DirectoryColumn3_name"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("32")]
+        public int Icon_size {
+            get {
+                return ((int)(this["Icon_size"]));
+            }
+        }
     }
 }

@@ -31,7 +31,7 @@ namespace FileExplorer
 			LoadingStarted?.Invoke(this, new EventArgs());
 		}
 
-		public virtual ListViewFileItem ConvertToListViewItem(FileSystemInfo file)
+		public virtual ListViewFileItem ConvertToListViewFileItem(FileSystemInfo file)
 		{
 			ListViewFileItem item = new ListViewFileItem(file.Name);
 			item.Name = file.FullName;
@@ -41,13 +41,25 @@ namespace FileExplorer
 			return item;
 		}
 
-		public virtual Icon getFileIcon(FileInfo file)
+		public virtual Icon GetFileSystemIcon(FileSystemInfo file)
+		{
+			if (file.Attributes.HasFlag(FileAttributes.Directory))
+			{
+				return GetDirectoryIcon(new DirectoryInfo(file.FullName));
+			}
+			else
+			{
+				return GetFileIcon(new FileInfo(file.FullName));
+			}
+		}
+
+		public virtual Icon GetFileIcon(FileInfo file)
 		{
 			Icon icon = IconReader.GetFileIcon(file.FullName, IconReader.IconSize.Large, false);
 			return icon;
 		}
 
-		public virtual Icon getDirectoryIcon(DirectoryInfo dir)
+		public virtual Icon GetDirectoryIcon(DirectoryInfo dir)
 		{
 			Icon icon = IconReader.GetFolderIcon(dir.FullName, IconReader.IconSize.Large, IconReader.FolderType.Open);
 			return icon;

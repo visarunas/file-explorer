@@ -179,7 +179,6 @@ namespace FileExplorer
 			this.Name = "FileExplorer";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "File Explorer";
-			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FileExplorer_FormClosed);
 			this.viewListContext.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.indicatorPictureBox)).EndInit();
 			this.ResumeLayout(false);
