@@ -95,15 +95,33 @@ namespace FileExplorer.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("This PC")]
         public string DriveDirectory_name {
             get {
                 return ((string)(this["DriveDirectory_name"]));
             }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Path")]
+        public string SearchColumn2_name {
+            get {
+                return ((string)(this["SearchColumn2_name"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("400")]
+        public int SearchColumn2_size {
+            get {
+                return ((int)(this["SearchColumn2_size"]));
+            }
             set {
-                this["DriveDirectory_name"] = value;
+                this["SearchColumn2_size"] = value;
             }
         }
     }

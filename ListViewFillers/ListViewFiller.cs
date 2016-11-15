@@ -8,8 +8,8 @@ namespace FileExplorer
 	public abstract class ListViewFiller
 	{
 		protected ListViewManager listViewManager;
-
 		protected IColumnManager columns;
+		protected bool Stopped { get; set; } = false;
 
 		public ListViewFiller(ListViewManager listViewManager, IColumnManager columns)
 		{
@@ -26,6 +26,13 @@ namespace FileExplorer
 
 			return item;
 		}
+
+		public virtual void Stop()
+		{
+			Stopped = true;
+		}
+
+		public abstract void FillListView();
 
 		public virtual Icon GetFileSystemIcon(FileSystemInfo file)
 		{

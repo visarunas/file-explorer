@@ -10,10 +10,10 @@ namespace FileExplorer
 {
 	public class SearchDisplayer : ListViewFiller
 	{
-		private bool SearchStopped { get; set; } = false;
 		public event EventHandler LoadingFinished, LoadingStarted;      //Custom Events
 
 		public DirectoryInfo Dir { get; set; }
+		public string searchPhrase { get; set; }
 
 		public SearchDisplayer(ListViewManager listViewManager, IColumnManager columns, EventHandler loadingStart, EventHandler loadingFinish) : base(listViewManager, columns)
 		{
@@ -21,30 +21,29 @@ namespace FileExplorer
 			LoadingStarted += loadingStart;
 		}
 
-		public void Stop()
-		{
-			SearchStopped = true;
-		}
-
-		protected void OnLoadingFinished()
+		public void OnLoadingFinished()
 		{
 			LoadingFinished?.Invoke(this, new EventArgs());
 		}
 
-		protected void OnLoadingStarted()
+		public void OnLoadingStarted()
 		{
 			LoadingStarted?.Invoke(this, new EventArgs());
 		}
 
-
-		public void FillListView(string searchName, DirectoryInfo dir)
+		override
+		public void FillListView()
 		{
-			SearchStopped = false;
-			OnLoadingStarted();
-			listViewManager.ClearListView();
-			listViewManager.SetColumns(columns);
-			SearchAll(searchName, dir);
-			OnLoadingFinished();
+			if (searchPhrase == null) throw new SearchPhraseNullException("Search phrase not specified");
+			else
+			{
+				Stopped = false;
+				OnLoadingStarted();
+				listViewManager.ClearListView();
+				listViewManager.SetColumns(columns);
+				SearchAll(searchPhrase, Dir);
+				OnLoadingFinished();
+			}
 		}
 
 		private void SearchAll(string searchName, DirectoryInfo dir)
@@ -53,7 +52,7 @@ namespace FileExplorer
 			{
 				foreach (FileSystemInfo file in dir.GetFileSystemInfos())
 				{
-					if (!SearchStopped)
+					if (!Stopped)
 					{
 						if (file.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase))
 						{

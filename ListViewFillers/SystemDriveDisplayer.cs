@@ -16,6 +16,7 @@ namespace FileExplorer
 
 		}
 
+		override
 		public void FillListView()
 		{
 			listViewManager.ClearListView();
@@ -24,12 +25,15 @@ namespace FileExplorer
 			DriveInfo[] allDrives = DriveInfo.GetDrives();
 			foreach (DriveInfo drive in allDrives)
 			{
-				ListViewFileItem item = new ListViewFileItem(drive.Name);
-				item.Name = drive.Name;
-				item.Attributes = FileAttributes.Directory;
-				item.ImageKey = item.Name;
-				Icon icon = IconReader.GetFolderIcon(null, IconReader.IconSize.Large, IconReader.FolderType.Open);
-				listViewManager.AddListViewItem(item, icon);
+				if (!Stopped)
+				{
+					ListViewFileItem item = new ListViewFileItem(drive.Name);
+					item.Name = drive.Name;
+					item.Attributes = FileAttributes.Directory;
+					item.ImageKey = item.Name;
+					Icon icon = IconReader.GetFolderIcon(null, IconReader.IconSize.Large, IconReader.FolderType.Open);
+					listViewManager.AddListViewItem(item, icon);
+				}
 			}
 		}
 	}

@@ -47,11 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DirectoryColumnManager.cs" />
-    <Compile Include="EmptyStackException.cs" />
-    <Compile Include="IColumnManager.cs" />
-    <Compile Include="ListViewFiller.cs" />
-    <Compile Include="DirectoryDisplayer.cs" />
+    <Compile Include="ColumnManagers\DirectoryColumnManager.cs" />
+    <Compile Include="ColumnManagers\SearchColumnManager.cs" />
+    <Compile Include="CustomExceptions\EmptyStackException.cs" />
+    <Compile Include="ColumnManagers\IColumnManager.cs" />
+    <Compile Include="ListViewFillers\ListViewFiller.cs" />
+    <Compile Include="ListViewFillers\DirectoryDisplayer.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FileExplorer.cs">
       <SubType>Form</SubType>
@@ -62,15 +63,14 @@
     <Compile Include="ListViewManager.cs" />
     <Compile Include="FileOperator.cs" />
     <Compile Include="IconHelper.cs" />
-    <Compile Include="ListViewColumnManager.cs" />
     <Compile Include="ListViewFileItem.cs" />
     <Compile Include="ListViewNF.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="SearchDisplayer.cs" />
-    <Compile Include="SpecialDirectories.cs" />
-    <Compile Include="SystemDriveDisplayer.cs" />
-    <Compile Include="UndoRedoList.cs" />
+    <Compile Include="ListViewFillers\SearchDisplayer.cs" />
+    <Compile Include="CustomExceptions\SearchPhraseNullException.cs" />
+    <Compile Include="ListViewFillers\SystemDriveDisplayer.cs" />
+    <Compile Include="UndoRedoStack.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FileExplorer.resx">

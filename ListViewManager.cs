@@ -15,6 +15,7 @@ namespace FileExplorer
 	{
 		private ListView listView;
 		private ImageList imageList;
+		private delegate void AddItem(ListViewItem item, Icon icon);
 
 		public ListViewManager(ListView listView, ImageList imageList)
 		{
@@ -42,7 +43,7 @@ namespace FileExplorer
 			// If these threads are different, it returns true.
 			if (listView.InvokeRequired)
 			{
-				MethodInvoker d = delegate { AddListViewItem(item, icon); };
+				AddItem d = AddListViewItem;
 				listView.Invoke(d, new object[] { item, icon } );
 			}
 			else

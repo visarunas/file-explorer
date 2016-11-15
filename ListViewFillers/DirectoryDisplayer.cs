@@ -37,13 +37,12 @@ namespace FileExplorer
 			}
 		}
 
-		private bool Stopped { get; set; } = false;
-
 		public DirectoryDisplayer(ListViewManager listViewManager, IColumnManager columns) : base(listViewManager, columns)
 		{
 			
 		}
 		
+		override
 		public void FillListView()
 		{
 			Stopped = false;
@@ -91,9 +90,5 @@ namespace FileExplorer
 			}
 		}
 
-		public void Stop()
-		{
-			Stopped = true;
-		}
 	}
 }

@@ -7,7 +7,24 @@ using System.IO;
 using static System.Windows.Forms.ListView;
 using System.Security;
 using System.ComponentModel;
+using System.Collections.Generic;
+using FileExplorer.ColumnManagers;
 
+/*
+ * 
+ * Lazy - SearchDisplayer
+ * Delegatai - ListViewManager
+ * Events - SearchDisplayer
+ * Exceptions - UndoRedoStack ir ChangeDirectory()
+ * Anoniminiai metodai - FileExplorer constructorius ir ListViewManager
+ * Lambda - ChangeDirectory(), SearchForFile()
+ * Threading ir async await - StopProcesses()
+ * Config - bet kuris ColumnManager
+ * Dependency Injection - FileExplorer constructorius
+ * 
+ */
+
+	
 namespace FileExplorer
 {
 	public partial class FileExplorer : Form
@@ -15,24 +32,25 @@ namespace FileExplorer
 		private UndoRedoStack UndoRedoStack;
 		private FileOperator fileOperator;
 		private ListViewManager listViewManager;
-		private Task searchThread, loadThread;
+		private Task loadTask;
 		private DirectoryDisplayer directoryDisplayer;
 		private SystemDriveDisplayer systemDriveDisplayer;
-		private Lazy<SearchDisplayer> searchDisplayer;			
-		private IColumnManager dirColumns;
+		private Lazy<SearchDisplayer> searchDisplayer;
+		private IColumnManager dirColumns, searchColumns;
 
 		public FileExplorer()
 		{
 			InitializeComponent();
 
 			dirColumns = new DirectoryColumnManager();
+			searchColumns = new SearchColumnManager();
 			
 			listViewManager = new ListViewManager(listView, imageList);
 			directoryDisplayer = new DirectoryDisplayer(listViewManager, dirColumns);
 			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager, dirColumns);
 
 			searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(            
-				listViewManager, dirColumns,
+				listViewManager, searchColumns,
 				delegate
 				{ indicatorPictureBox.Image = Properties.Resources.loadingImage; }, 
 				delegate
@@ -52,6 +70,76 @@ namespace FileExplorer
 
 			ChangeDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
 
+		}
+
+		private async void SearchForFile(string searchName, bool addToPathList = true)
+		{
+			setPathTextBoxText("Search results: " + searchName);
+			setSearchTextBoxText(searchName);
+			await StopProcesses();
+			if (addToPathList)
+			{
+				UndoRedoStack.AddNext(() => SearchForFile(searchName, false));
+			}
+			searchDisplayer.Value.searchPhrase = searchName;
+			searchDisplayer.Value.Dir = directoryDisplayer.Dir;
+			loadTask = new Task( () => searchDisplayer.Value.FillListView() );
+			loadTask.Start();
+		}
+
+		public async void ChangeDirectory(string path, bool addToPathList = true)
+		{
+			setSearchTextBoxText(string.Empty);
+			await StopProcesses();
+			if (path != string.Empty && path != null)
+			{
+				setPathTextBoxText(path);
+				try
+				{
+					directoryDisplayer.Dir = new DirectoryInfo(path);
+					loadTask = new Task( () => directoryDisplayer.FillListView() );
+					loadTask.Start();
+
+					if (addToPathList)
+					{
+						UndoRedoStack.AddNext(() => ChangeDirectory(path, false));
+					}
+				}
+				catch (ArgumentNullException)
+				{
+					MessageBox.Show("Path not specified");
+				}
+				catch (SecurityException)
+				{
+					MessageBox.Show("Access denied");
+				}
+				catch (ArgumentException)
+				{
+					MessageBox.Show("Path contains invalid characters");
+				}
+				catch (PathTooLongException)
+				{
+					MessageBox.Show("Specified path is too long");
+				}
+				catch (DirectoryNotFoundException)
+				{
+					MessageBox.Show("Specified directory not found");
+				}
+				finally
+				{
+					setPathTextBoxText(directoryDisplayer.Dir.ToString());
+				}
+			}
+			else
+			{
+				setPathTextBoxText(Properties.Settings.Default.DriveDirectory_name);
+				if (addToPathList)
+				{
+					UndoRedoStack.AddNext(() => ChangeDirectory(null, false));
+				}
+				loadTask = new Task( () => systemDriveDisplayer.FillListView() );
+				loadTask.Start();
+			}
 		}
 
 		private void OnPathTextBoxFocus(object sender, EventArgs e)
@@ -74,6 +162,30 @@ namespace FileExplorer
 		private void pathTextBox_Validated(object sender, EventArgs e)
 		{
 			ChangeDirectory(pathTextBox.Text);
+		}
+
+		private void searchTextBox_TextChanged(object sender, EventArgs e)
+		{
+			if (searchTextBox.Focused)
+			{
+				if (searchTextBox.Text != string.Empty)
+				{
+					SearchForFile(searchTextBox.Text, false);
+				}
+				else
+				{
+					ChangeDirectory(directoryDisplayer.Dir.ToString());
+				}
+			}
+		}
+
+		private void searchTextBox_Validated(object sender, EventArgs e)
+		{
+			if (searchTextBox.Text != string.Empty)
+			{
+				string searchText = searchTextBox.Text;
+				UndoRedoStack.AddNext(() => SearchForFile(searchText, false));
+			}
 		}
 
 		private void pathTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -116,83 +228,6 @@ namespace FileExplorer
 			}
 		}
 
-
-		public async void ChangeDirectory(string path, bool addToPathList = true)
-		{
-			setSearchTextBoxText(string.Empty);
-			await StopProcesses();
-			if (path != string.Empty && path != null)
-			{
-				setPathTextBoxText(path);
-				try
-				{
-					directoryDisplayer.Dir = new DirectoryInfo(path);
-					loadThread = new Task( () => directoryDisplayer.FillListView() );
-					loadThread.Start();
-
-					if (addToPathList)
-					{
-						UndoRedoStack.AddNext(() => ChangeDirectory(path, false));
-					}
-				}
-				catch (ArgumentNullException)
-				{
-					MessageBox.Show("Path not specified");
-				}
-				catch (SecurityException)
-				{
-					MessageBox.Show("Access denied");
-				}
-				catch (ArgumentException)
-				{
-					MessageBox.Show("Path contains invalid characters");
-				}
-				catch (PathTooLongException)
-				{
-					MessageBox.Show("Specified path is too long");
-				}
-				catch (DirectoryNotFoundException)
-				{
-					MessageBox.Show("Specified directory not found");
-				}
-				finally
-				{
-					setPathTextBoxText(directoryDisplayer.Dir.ToString());
-				}
-			}
-			else
-			{
-				setPathTextBoxText(Properties.Settings.Default.DriveDirectory_name);
-				if (addToPathList)
-				{
-					UndoRedoStack.AddNext( () => ChangeDirectory(null, false) );
-				}
-				systemDriveDisplayer.FillListView();
-			}
-		}
-
-		private void buttonBack_Click(object sender, EventArgs e)
-		{
-			if (directoryDisplayer.Dir.Parent != null)
-			{
-				ChangeDirectory(directoryDisplayer.Dir.Parent.FullName);
-			}
-			else
-			{
-				ChangeDirectory("");
-			}
-		}
-
-		private async Task StopProcesses()
-		{
-			directoryDisplayer.Stop();
-			searchDisplayer.Value.Stop();
-			if (searchThread != null)
-				await Task.WhenAll(searchThread);
-			if (loadThread != null)
-				await Task.WhenAll(loadThread);
-		}
-
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
 			UndoRedoStack.Undo().Invoke();
@@ -203,17 +238,23 @@ namespace FileExplorer
 			UndoRedoStack.Redo().Invoke();
 		}
 
-		private async void SearchForFile(string searchName, bool addToPathList = true)
+		private void buttonBack_Click(object sender, EventArgs e)
 		{
-			setPathTextBoxText("Search results: " + searchName);
-			setSearchTextBoxText(searchName);
-			await StopProcesses();
-			if (addToPathList)
+			if (searchTextBox.Text == string.Empty)
 			{
-				UndoRedoStack.AddNext( () => SearchForFile(searchName, false) );
+				if (directoryDisplayer.Dir.Parent != null)
+				{
+					ChangeDirectory(directoryDisplayer.Dir.Parent.FullName);
+				}
+				else
+				{
+					ChangeDirectory("");
+				}
 			}
-			searchThread = new Task( () => searchDisplayer.Value.FillListView(searchName, directoryDisplayer.Dir) );
-			searchThread.Start();
+			else
+			{
+				ChangeDirectory(directoryDisplayer.Dir.ToString());
+			}
 		}
 
 		private void RefreshView()
@@ -250,41 +291,28 @@ namespace FileExplorer
 
 		private void listView_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
 		{
-			dirColumns.UpdateColumnWidths();
-		}
-
-		private void FileExplorer_FormClosed(object sender, FormClosedEventArgs e)
-		{
-			Properties.Settings.Default.Save();
-		}
-
-		private void searchTextBox_TextChanged(object sender, EventArgs e)
-		{
-			if (searchTextBox.Focused)
-			{
-				if (searchTextBox.Text != string.Empty)
-				{
-					SearchForFile(searchTextBox.Text, false);
-				}
-				else
-				{
-					ChangeDirectory(directoryDisplayer.Dir.ToString());
-				}
-			}
-		}
-
-		private void searchTextBox_Validated(object sender, EventArgs e)
-		{
-			if (searchTextBox.Text != string.Empty)
-			{
-				string searchText = searchTextBox.Text;
-				UndoRedoStack.AddNext(() => SearchForFile(searchText, false));
-			}
+			if (dirColumns != null)
+				dirColumns.UpdateColumnWidths();
+			if (searchColumns != null)
+				searchColumns.UpdateColumnWidths();
 		}
 
 		private SelectedListViewItemCollection getSelectedItems()
 		{
 			return listView.SelectedItems;
+		}
+
+		private async Task StopProcesses()
+		{
+			directoryDisplayer.Stop();
+			searchDisplayer.Value.Stop();
+			if (loadTask != null)
+				await Task.WhenAll(loadTask);
+		}
+
+		private void FileExplorer_FormClosed(object sender, FormClosedEventArgs e)
+		{
+			Properties.Settings.Default.Save();
 		}
 
 	}
