@@ -11,7 +11,7 @@ namespace FileExplorer
 	public class SearchDisplayer : ListViewFiller
 	{
 		private bool SearchStopped { get; set; } = false;
-		public event EventHandler LoadingFinished, LoadingStarted;
+		public event EventHandler LoadingFinished, LoadingStarted;		//Custom Events
 
 		public SearchDisplayer(ListViewManager listViewManager, IColumnManager columns, EventHandler loadingStart, EventHandler loadingFinish) : base(listViewManager, columns)
 		{

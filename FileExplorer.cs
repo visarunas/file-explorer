@@ -48,7 +48,7 @@ namespace FileExplorer
 		private Task searchThread, loadThread;
 		private DirectoryDisplayer directoryDisplayer;
 		private SystemDriveDisplayer systemDriveDisplayer;
-		private Lazy<SearchDisplayer> searchDisplayer;
+		private Lazy<SearchDisplayer> searchDisplayer;			//Lazy
 		private IColumnManager dirColumns;
 
 		public FileExplorer()
@@ -60,16 +60,16 @@ namespace FileExplorer
 			listViewManager = new ListViewManager(listView, imageList);
 			directoryDisplayer = new DirectoryDisplayer(listViewManager, dirColumns);
 			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager, dirColumns);
-			searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(
+
+			searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(             //Lazy 
 				listViewManager, dirColumns,
 				delegate
 				{ indicatorPictureBox.Image = Properties.Resources.loadingImage; }, 
 				delegate
-				{ indicatorPictureBox.Image = null; }
-				) );
-			//searchDisplayer = new SearchDisplayer(listViewManager, dirColumns);
+				{ indicatorPictureBox.Image = null; } ) );
+
 			UndoRedoList = new UndoRedoStack();
-			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
+			Dir = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
 			
 
 			listView.LargeImageList = imageList;
@@ -80,14 +80,6 @@ namespace FileExplorer
 			fileOperator = new FileOperator();
 			searchTextBox.GotFocus += searchTextBox_GotFocus;
 			searchTextBox.LostFocus += searchTextBox_LostFocus;
-
-			/*
-			searchDisplayer.LoadingFinished += delegate
-			{ indicatorPictureBox.Image = null; };
-
-			searchDisplayer.LoadingStarted += delegate
-			{ indicatorPictureBox.Image = Properties.Resources.loadingImage; };
-			*/
 
 			ChangeDirectory(Dir.ToString());
 
@@ -236,7 +228,7 @@ namespace FileExplorer
 			}
 			catch (EmptyStackException e)
 			{
-				Console.WriteLine(e.Message);
+				Debug.WriteLine(e.Message);
 			}
 			
 		}
@@ -252,12 +244,14 @@ namespace FileExplorer
 			else if (e.ClickedItem == pasteToolStripMenuItem)
 			{
 				fileOperator.PasteFile(Dir.ToString());
+				RefreshView();
 			}
 			else if (e.ClickedItem == deleteToolStripMenuItem)
 			{
 				var arr = new ListViewFileItem[getSelectedItems().Count];
 				getSelectedItems().CopyTo(arr, 0);
 				fileOperator.DeleteFile(arr);
+				RefreshView();
 			}
 		}
 
