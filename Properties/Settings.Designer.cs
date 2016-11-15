@@ -94,5 +94,17 @@ namespace FileExplorer.Properties {
                 return ((int)(this["Icon_size"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("This PC")]
+        public string DriveDirectory_name {
+            get {
+                return ((string)(this["DriveDirectory_name"]));
+            }
+            set {
+                this["DriveDirectory_name"] = value;
+            }
+        }
     }
 }

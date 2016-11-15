@@ -11,13 +11,14 @@ namespace FileExplorer
 	public class SearchDisplayer : ListViewFiller
 	{
 		private bool SearchStopped { get; set; } = false;
-		public event EventHandler LoadingFinished, LoadingStarted;		//Custom Events
+		public event EventHandler LoadingFinished, LoadingStarted;      //Custom Events
+
+		public DirectoryInfo Dir { get; set; }
 
 		public SearchDisplayer(ListViewManager listViewManager, IColumnManager columns, EventHandler loadingStart, EventHandler loadingFinish) : base(listViewManager, columns)
 		{
 			LoadingFinished += loadingFinish;
 			LoadingStarted += loadingStart;
-			
 		}
 
 		public void Stop()

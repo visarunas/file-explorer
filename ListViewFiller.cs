@@ -17,7 +17,6 @@ namespace FileExplorer
 			this.columns = columns;
 		}
 
-
 		public virtual ListViewFileItem ConvertToListViewFileItem(FileSystemInfo file)
 		{
 			ListViewFileItem item = new ListViewFileItem(file.Name);

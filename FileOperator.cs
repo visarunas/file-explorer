@@ -74,20 +74,7 @@ namespace FileExplorer
 
 		public void OpenFile(string filePath)
 		{
-			try
-			{
-				Process.Start(filePath);
-			}
-			catch(System.ComponentModel.Win32Exception e)
-			{
-				Debug.WriteLine(e.Message);
-			}
-			catch(Exception e)
-			{
-				Debug.WriteLine(e.Message);
-			}
-			
+			Process.Start(filePath);
 		}
-
 	}
 }

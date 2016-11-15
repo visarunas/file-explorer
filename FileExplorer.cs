@@ -1,54 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Etier.IconHelper;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
-using System.Security.Permissions;
-using FileExplorer.ExtensionMethods;
 using static System.Windows.Forms.ListView;
+using System.Security;
+using System.ComponentModel;
 
 namespace FileExplorer
 {
 	public partial class FileExplorer : Form
 	{
-		private DirectoryInfo dir;
-		public DirectoryInfo Dir {
-			get {
-				return dir;
-			}
-			set {
-				if (!value.Exists)
-				{
-					throw new DirectoryNotFoundException();
-				}
-				else if (value.ToString().Last() == '\\')
-				{
-					dir = value;
-				}
-				else
-				{
-					dir = new DirectoryInfo(value.ToString() + @"\");
-				}
-				setPathTextBoxText(dir.ToString());
-				pathTextBox.Refresh();
-			}
-		}
-
-		private UndoRedoStack UndoRedoList;
+		private UndoRedoStack UndoRedoStack;
 		private FileOperator fileOperator;
 		private ListViewManager listViewManager;
 		private Task searchThread, loadThread;
 		private DirectoryDisplayer directoryDisplayer;
 		private SystemDriveDisplayer systemDriveDisplayer;
-		private Lazy<SearchDisplayer> searchDisplayer;			//Lazy
+		private Lazy<SearchDisplayer> searchDisplayer;			
 		private IColumnManager dirColumns;
 
 		public FileExplorer()
@@ -61,51 +31,44 @@ namespace FileExplorer
 			directoryDisplayer = new DirectoryDisplayer(listViewManager, dirColumns);
 			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager, dirColumns);
 
-			searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(             //Lazy 
+			searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(            
 				listViewManager, dirColumns,
 				delegate
 				{ indicatorPictureBox.Image = Properties.Resources.loadingImage; }, 
 				delegate
 				{ indicatorPictureBox.Image = null; } ) );
 
-			UndoRedoList = new UndoRedoStack();
-			Dir = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+			UndoRedoStack = new UndoRedoStack();
 			
 
 			listView.LargeImageList = imageList;
 			listView.SmallImageList = imageList;
 			listView.View = View.Details;
 
+			pathTextBox.GotFocus += OnPathTextBoxFocus;
+
 			imageList.ImageSize = new Size(Properties.Settings.Default.Icon_size, Properties.Settings.Default.Icon_size);
 			fileOperator = new FileOperator();
-			searchTextBox.GotFocus += searchTextBox_GotFocus;
-			searchTextBox.LostFocus += searchTextBox_LostFocus;
 
-			ChangeDirectory(Dir.ToString());
+			ChangeDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
 
 		}
 
-		private void searchTextBox_GotFocus(object sender, EventArgs e)
+		private void OnPathTextBoxFocus(object sender, EventArgs e)
 		{
-			if (searchTextBox.Text == "Search")
-			{
-				searchTextBox.ForeColor = Color.Black;
-				searchTextBox.Text = "";
-			}
+			setPathTextBoxText(directoryDisplayer.Dir.ToString());
 		}
 
 		private void setPathTextBoxText(string text)
 		{
 			pathTextBox.Text = text;
+			pathTextBox.Refresh();
 		}
 
-		private void searchTextBox_LostFocus(object sender, EventArgs e)
+		private void setSearchTextBoxText(string text)
 		{
-			if (searchTextBox.Text == "")
-			{
-				searchTextBox.ForeColor = Color.DarkGray;
-				searchTextBox.Text = "Search";
-			}
+			searchTextBox.Text = text;
+			searchTextBox.Refresh();
 		}
 
 		private void pathTextBox_Validated(object sender, EventArgs e)
@@ -117,7 +80,8 @@ namespace FileExplorer
 		{
 			if(e.KeyCode == Keys.Enter)
 			{
-				pathTextBox_Validated(this, null);	
+				pathTextBox_Validated(this, null);
+				listView.Focus();
 			}
 		}
 
@@ -133,31 +97,75 @@ namespace FileExplorer
 			}
 			else
 			{
-				fileOperator.OpenFile(item.Name);
+				try
+				{
+					fileOperator.OpenFile(item.Name);
+				}
+				catch (FileNotFoundException)
+				{
+					MessageBox.Show("File not found");
+				}
+				catch(ObjectDisposedException)
+				{
+					MessageBox.Show("Failed to open file");
+				}
+				catch (Win32Exception ex)
+				{
+					MessageBox.Show(ex.Message);
+				}
 			}
 		}
 
+
 		public async void ChangeDirectory(string path, bool addToPathList = true)
 		{
+			setSearchTextBoxText(string.Empty);
 			await StopProcesses();
 			if (path != string.Empty && path != null)
 			{
-				Dir = new DirectoryInfo(path);
-				loadThread = new Task( () => directoryDisplayer.FillListView(Dir) );
-				loadThread.Start();
-
-				if (addToPathList)
+				setPathTextBoxText(path);
+				try
 				{
-					string currentPath = Dir.ToString();
-					UndoRedoList.AddNext( () => ChangeDirectory(currentPath, false) );
+					directoryDisplayer.Dir = new DirectoryInfo(path);
+					loadThread = new Task( () => directoryDisplayer.FillListView() );
+					loadThread.Start();
+
+					if (addToPathList)
+					{
+						UndoRedoStack.AddNext(() => ChangeDirectory(path, false));
+					}
+				}
+				catch (ArgumentNullException)
+				{
+					MessageBox.Show("Path not specified");
+				}
+				catch (SecurityException)
+				{
+					MessageBox.Show("Access denied");
+				}
+				catch (ArgumentException)
+				{
+					MessageBox.Show("Path contains invalid characters");
+				}
+				catch (PathTooLongException)
+				{
+					MessageBox.Show("Specified path is too long");
+				}
+				catch (DirectoryNotFoundException)
+				{
+					MessageBox.Show("Specified directory not found");
+				}
+				finally
+				{
+					setPathTextBoxText(directoryDisplayer.Dir.ToString());
 				}
 			}
 			else
 			{
-				setPathTextBoxText("This PC");
+				setPathTextBoxText(Properties.Settings.Default.DriveDirectory_name);
 				if (addToPathList)
 				{
-					UndoRedoList.AddNext( () => ChangeDirectory(null, false) );
+					UndoRedoStack.AddNext( () => ChangeDirectory(null, false) );
 				}
 				systemDriveDisplayer.FillListView();
 			}
@@ -165,15 +173,14 @@ namespace FileExplorer
 
 		private void buttonBack_Click(object sender, EventArgs e)
 		{
-			if (Dir.Parent != null)
+			if (directoryDisplayer.Dir.Parent != null)
 			{
-				ChangeDirectory(Dir.Parent.FullName);
+				ChangeDirectory(directoryDisplayer.Dir.Parent.FullName);
 			}
 			else
 			{
 				ChangeDirectory("");
 			}
-			
 		}
 
 		private async Task StopProcesses()
@@ -188,49 +195,37 @@ namespace FileExplorer
 
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
-			UndoRedoList.Undo().Invoke();
+			UndoRedoStack.Undo().Invoke();
 		}
 
 		private void buttonRedo_Click(object sender, EventArgs e)
 		{
-			UndoRedoList.Redo().Invoke();
-		}
-
-		private void searchTextBox_Validated(object sender, EventArgs e)
-		{
-			SearchForFile(searchTextBox.Text);
+			UndoRedoStack.Redo().Invoke();
 		}
 
 		private async void SearchForFile(string searchName, bool addToPathList = true)
 		{
-			if (searchTextBox.Text == "Search")
+			setPathTextBoxText("Search results: " + searchName);
+			setSearchTextBoxText(searchName);
+			await StopProcesses();
+			if (addToPathList)
 			{
-				ChangeDirectory(Dir.ToString());
+				UndoRedoStack.AddNext( () => SearchForFile(searchName, false) );
 			}
-			else
-			{
-				await StopProcesses();
-				if (addToPathList)
-				{
-					UndoRedoList.AddNext( () => SearchForFile(searchName, false) );
-				}
-				searchThread = new Task( () => searchDisplayer.Value.FillListView(searchName, Dir) );
-				searchThread.Start();
-
-			}
+			searchThread = new Task( () => searchDisplayer.Value.FillListView(searchName, directoryDisplayer.Dir) );
+			searchThread.Start();
 		}
 
 		private void RefreshView()
 		{
 			try
 			{
-				UndoRedoList.GetCurrent().Invoke();
+				UndoRedoStack.GetCurrent().Invoke();
 			}
 			catch (EmptyStackException e)
 			{
 				Debug.WriteLine(e.Message);
 			}
-			
 		}
 
 		private void viewListContext_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -243,15 +238,13 @@ namespace FileExplorer
 			}
 			else if (e.ClickedItem == pasteToolStripMenuItem)
 			{
-				fileOperator.PasteFile(Dir.ToString());
-				RefreshView();
+				fileOperator.PasteFile(directoryDisplayer.Dir.ToString());
 			}
 			else if (e.ClickedItem == deleteToolStripMenuItem)
 			{
 				var arr = new ListViewFileItem[getSelectedItems().Count];
 				getSelectedItems().CopyTo(arr, 0);
 				fileOperator.DeleteFile(arr);
-				RefreshView();
 			}
 		}
 
@@ -263,6 +256,30 @@ namespace FileExplorer
 		private void FileExplorer_FormClosed(object sender, FormClosedEventArgs e)
 		{
 			Properties.Settings.Default.Save();
+		}
+
+		private void searchTextBox_TextChanged(object sender, EventArgs e)
+		{
+			if (searchTextBox.Focused)
+			{
+				if (searchTextBox.Text != string.Empty)
+				{
+					SearchForFile(searchTextBox.Text, false);
+				}
+				else
+				{
+					ChangeDirectory(directoryDisplayer.Dir.ToString());
+				}
+			}
+		}
+
+		private void searchTextBox_Validated(object sender, EventArgs e)
+		{
+			if (searchTextBox.Text != string.Empty)
+			{
+				string searchText = searchTextBox.Text;
+				UndoRedoStack.AddNext(() => SearchForFile(searchText, false));
+			}
 		}
 
 		private SelectedListViewItemCollection getSelectedItems()
