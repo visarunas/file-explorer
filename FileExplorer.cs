@@ -48,22 +48,26 @@ namespace FileExplorer
 		private Task searchThread, loadThread;
 		private DirectoryDisplayer directoryDisplayer;
 		private SystemDriveDisplayer systemDriveDisplayer;
-		private SearchDisplayer searchDisplayer;
+		private Lazy<SearchDisplayer> searchDisplayer;
 		private IColumnManager dirColumns;
 
 		public FileExplorer()
 		{
 			InitializeComponent();
-			//OnDirectoryChanged += pathTextBox_Validated;
-			//Properties.Settings.Default.FirstUserSetting = "abc";
 
 			dirColumns = new DirectoryColumnManager();
 			
 			listViewManager = new ListViewManager(listView, imageList);
 			directoryDisplayer = new DirectoryDisplayer(listViewManager, dirColumns);
 			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager, dirColumns);
-			//searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(listViewManager) );
-			searchDisplayer = new SearchDisplayer(listViewManager, dirColumns);
+			searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(
+				listViewManager, dirColumns,
+				delegate
+				{ indicatorPictureBox.Image = Properties.Resources.loadingImage; }, 
+				delegate
+				{ indicatorPictureBox.Image = null; }
+				) );
+			//searchDisplayer = new SearchDisplayer(listViewManager, dirColumns);
 			UndoRedoList = new UndoRedoStack();
 			Dir = new DirectoryInfo(@"c:\users\Sarunas\Desktop");
 			
@@ -77,11 +81,13 @@ namespace FileExplorer
 			searchTextBox.GotFocus += searchTextBox_GotFocus;
 			searchTextBox.LostFocus += searchTextBox_LostFocus;
 
+			/*
 			searchDisplayer.LoadingFinished += delegate
 			{ indicatorPictureBox.Image = null; };
 
 			searchDisplayer.LoadingStarted += delegate
 			{ indicatorPictureBox.Image = Properties.Resources.loadingImage; };
+			*/
 
 			ChangeDirectory(Dir.ToString());
 
@@ -181,7 +187,7 @@ namespace FileExplorer
 		private async Task StopProcesses()
 		{
 			directoryDisplayer.Stop();
-			searchDisplayer.Stop();
+			searchDisplayer.Value.Stop();
 			if (searchThread != null)
 				await Task.WhenAll(searchThread);
 			if (loadThread != null)
@@ -216,7 +222,7 @@ namespace FileExplorer
 				{
 					UndoRedoList.AddNext( () => SearchForFile(searchName, false) );
 				}
-				searchThread = new Task( () => searchDisplayer.FillListView(searchName, Dir) );
+				searchThread = new Task( () => searchDisplayer.Value.FillListView(searchName, Dir) );
 				searchThread.Start();
 
 			}

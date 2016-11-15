@@ -8,8 +8,14 @@ namespace FileExplorer
 {
 	public class EmptyStackException : Exception
 	{
+		public EmptyStackException()
+		{
+		}
+
 		public EmptyStackException(string message) : base(message)
 		{
 		}
+
+
 	}
 }

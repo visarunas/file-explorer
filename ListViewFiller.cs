@@ -12,7 +12,7 @@ namespace FileExplorer
 	public abstract class ListViewFiller
 	{
 		protected ListViewManager listViewManager;
-		public event EventHandler LoadingFinished, LoadingStarted;
+
 		protected IColumnManager columns;
 
 		public ListViewFiller(ListViewManager listViewManager, IColumnManager columns)
@@ -21,15 +21,6 @@ namespace FileExplorer
 			this.columns = columns;
 		}
 
-		protected void OnLoadingFinished()
-		{
-			LoadingFinished?.Invoke(this, new EventArgs());
-		}
-
-		protected void OnLoadingStarted()
-		{
-			LoadingStarted?.Invoke(this, new EventArgs());
-		}
 
 		public virtual ListViewFileItem ConvertToListViewFileItem(FileSystemInfo file)
 		{
