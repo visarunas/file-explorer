@@ -53,7 +53,7 @@ namespace FileExplorer
 			directoryDisplayer = new DirectoryDisplayer(listViewManager, dirColumns);
 			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager, dirColumns);
 			searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(            
-				listViewManager, dirColumns,
+				listViewManager, searchColumns,
 				delegate
 				{ indicatorPictureBox.Image = Properties.Resources.loadingImage; }, 
 				delegate
