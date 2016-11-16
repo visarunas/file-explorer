@@ -22,6 +22,10 @@ using FileExplorer.ColumnManagers;
  * Config - bet kuris ColumnManager
  * Dependency Injection - FileExplorer constructorius
  * 
+ * Filtruoti pagal data
+ * 
+ * Directory selection dialog
+ * 
  */
 
 	
@@ -34,7 +38,7 @@ namespace FileExplorer
 		private ListViewManager listViewManager;
 		private Task loadTask;
 		private DirectoryDisplayer directoryDisplayer;
-		private SystemDriveDisplayer systemDriveDisplayer;
+		private ListViewFiller systemDriveDisplayer;
 		private Lazy<SearchDisplayer> searchDisplayer;
 		private IColumnManager dirColumns, searchColumns;
 
@@ -48,9 +52,8 @@ namespace FileExplorer
 			listViewManager = new ListViewManager(listView, imageList);
 			directoryDisplayer = new DirectoryDisplayer(listViewManager, dirColumns);
 			systemDriveDisplayer = new SystemDriveDisplayer(listViewManager, dirColumns);
-
 			searchDisplayer = new Lazy<SearchDisplayer>( () => new SearchDisplayer(            
-				listViewManager, searchColumns,
+				listViewManager, dirColumns,
 				delegate
 				{ indicatorPictureBox.Image = Properties.Resources.loadingImage; }, 
 				delegate
@@ -142,6 +145,8 @@ namespace FileExplorer
 			}
 		}
 
+		#region TextBoxes
+
 		private void OnPathTextBoxFocus(object sender, EventArgs e)
 		{
 			setPathTextBoxText(directoryDisplayer.Dir.ToString());
@@ -197,6 +202,8 @@ namespace FileExplorer
 			}
 		}
 
+		#endregion
+
 		private async void listView_DoubleClick(object sender, EventArgs e)
 		{
 			await StopProcesses();
@@ -228,6 +235,8 @@ namespace FileExplorer
 			}
 		}
 
+		#region Buttons
+
 		private void buttonUndo_Click(object sender, EventArgs e)
 		{
 			UndoRedoStack.Undo().Invoke();
@@ -256,6 +265,8 @@ namespace FileExplorer
 				ChangeDirectory(directoryDisplayer.Dir.ToString());
 			}
 		}
+
+		#endregion
 
 		private void RefreshView()
 		{
@@ -308,6 +319,39 @@ namespace FileExplorer
 			searchDisplayer.Value.Stop();
 			if (loadTask != null)
 				await Task.WhenAll(loadTask);
+		}
+
+		private void dateTimePicker_ValueChanged(object sender, EventArgs e)
+		{
+			if (dateTimePicker.Focused)
+			{
+				searchDisplayer.Value.DateFilter = dateTimePicker.Value;
+				if (searchTextBox.Text != string.Empty)
+					SearchForFile(searchTextBox.Text);
+			}
+		}
+
+		private void removeFilterButton_Click(object sender, EventArgs e)
+		{
+			if (searchDisplayer.IsValueCreated)
+			{
+				dateTimePicker.Value = DateTime.Today;
+				searchDisplayer.Value.DateFilter = DateTime.MinValue;
+				if (searchTextBox.Text != string.Empty)
+					SearchForFile(searchTextBox.Text);
+			}
+
+		}
+
+		private async void browserDialogButton_Click(object sender, EventArgs e)
+		{
+			await StopProcesses();
+			folderBrowserDialog.SelectedPath = directoryDisplayer.Dir.ToString();
+			var result = folderBrowserDialog.ShowDialog();
+			if (result == DialogResult.OK)
+			{
+				ChangeDirectory(folderBrowserDialog.SelectedPath);
+			}
 		}
 
 		private void FileExplorer_FormClosed(object sender, FormClosedEventArgs e)

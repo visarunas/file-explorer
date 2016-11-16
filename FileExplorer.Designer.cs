@@ -42,6 +42,10 @@ namespace FileExplorer
 			this.buttonBack = new System.Windows.Forms.Button();
 			this.searchTextBox = new System.Windows.Forms.TextBox();
 			this.indicatorPictureBox = new System.Windows.Forms.PictureBox();
+			this.dateTimePicker = new System.Windows.Forms.DateTimePicker();
+			this.removeFilterButton = new System.Windows.Forms.Button();
+			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+			this.browserDialogButton = new System.Windows.Forms.Button();
 			this.listView = new FileExplorerControls.ListViewNF();
 			this.viewListContext.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.indicatorPictureBox)).BeginInit();
@@ -90,7 +94,7 @@ namespace FileExplorer
 			this.pathTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.pathTextBox.Location = new System.Drawing.Point(173, 21);
 			this.pathTextBox.Name = "pathTextBox";
-			this.pathTextBox.Size = new System.Drawing.Size(504, 29);
+			this.pathTextBox.Size = new System.Drawing.Size(450, 29);
 			this.pathTextBox.TabIndex = 4;
 			this.pathTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pathTextBox_KeyDown);
 			this.pathTextBox.Validated += new System.EventHandler(this.pathTextBox_Validated);
@@ -148,6 +152,35 @@ namespace FileExplorer
 			this.indicatorPictureBox.TabIndex = 5;
 			this.indicatorPictureBox.TabStop = false;
 			// 
+			// dateTimePicker
+			// 
+			this.dateTimePicker.Location = new System.Drawing.Point(763, 629);
+			this.dateTimePicker.Name = "dateTimePicker";
+			this.dateTimePicker.Size = new System.Drawing.Size(200, 20);
+			this.dateTimePicker.TabIndex = 6;
+			this.dateTimePicker.ValueChanged += new System.EventHandler(this.dateTimePicker_ValueChanged);
+			// 
+			// removeFilterButton
+			// 
+			this.removeFilterButton.Location = new System.Drawing.Point(638, 629);
+			this.removeFilterButton.Name = "removeFilterButton";
+			this.removeFilterButton.Size = new System.Drawing.Size(108, 23);
+			this.removeFilterButton.TabIndex = 7;
+			this.removeFilterButton.Text = "Remove Filter";
+			this.removeFilterButton.UseVisualStyleBackColor = true;
+			this.removeFilterButton.Click += new System.EventHandler(this.removeFilterButton_Click);
+			// 
+			// browserDialogButton
+			// 
+			this.browserDialogButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.browserDialogButton.Location = new System.Drawing.Point(629, 21);
+			this.browserDialogButton.Name = "browserDialogButton";
+			this.browserDialogButton.Size = new System.Drawing.Size(48, 29);
+			this.browserDialogButton.TabIndex = 8;
+			this.browserDialogButton.Text = "Path";
+			this.browserDialogButton.UseVisualStyleBackColor = true;
+			this.browserDialogButton.Click += new System.EventHandler(this.browserDialogButton_Click);
+			// 
 			// listView
 			// 
 			this.listView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -156,7 +189,7 @@ namespace FileExplorer
 			this.listView.ContextMenuStrip = this.viewListContext;
 			this.listView.Location = new System.Drawing.Point(12, 56);
 			this.listView.Name = "listView";
-			this.listView.Size = new System.Drawing.Size(960, 593);
+			this.listView.Size = new System.Drawing.Size(960, 567);
 			this.listView.TabIndex = 1;
 			this.listView.UseCompatibleStateImageBehavior = false;
 			this.listView.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.listView_ColumnWidthChanged);
@@ -168,6 +201,9 @@ namespace FileExplorer
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.Control;
 			this.ClientSize = new System.Drawing.Size(984, 661);
+			this.Controls.Add(this.browserDialogButton);
+			this.Controls.Add(this.removeFilterButton);
+			this.Controls.Add(this.dateTimePicker);
 			this.Controls.Add(this.indicatorPictureBox);
 			this.Controls.Add(this.listView);
 			this.Controls.Add(this.searchTextBox);
@@ -201,7 +237,10 @@ namespace FileExplorer
 		private ListViewNF listView;
 		private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
 		private System.Windows.Forms.PictureBox indicatorPictureBox;
-
+		private System.Windows.Forms.DateTimePicker dateTimePicker;
+		private System.Windows.Forms.Button removeFilterButton;
+		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
+		private System.Windows.Forms.Button browserDialogButton;
 	}
 }
 

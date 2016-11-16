@@ -14,6 +14,7 @@ namespace FileExplorer
 
 		public DirectoryInfo Dir { get; set; }
 		public string searchPhrase { get; set; }
+		public DateTime DateFilter { get; set; } = DateTime.MinValue;
 
 		public SearchDisplayer(ListViewManager listViewManager, IColumnManager columns, EventHandler loadingStart, EventHandler loadingFinish) : base(listViewManager, columns)
 		{
@@ -56,18 +57,23 @@ namespace FileExplorer
 					{
 						if (file.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase))
 						{
-							ListViewFileItem item = ConvertToListViewFileItem(file);
-							
-							if (file.Attributes.HasFlag(FileAttributes.Directory))	//If Directory
+					
+							if (DateFilter != null && file.CreationTime > DateFilter)
 							{
-								DirectoryInfo dirFile = new DirectoryInfo(file.FullName);
-								columns.AddSubItem(dirFile, item);
+								ListViewFileItem item = ConvertToListViewFileItem(file);
+
+								if (file.Attributes.HasFlag(FileAttributes.Directory))  //If Directory
+								{
+									DirectoryInfo dirFile = new DirectoryInfo(file.FullName);
+									columns.AddSubItem(dirFile, item);
+								}
+								else  //If File
+								{
+									columns.AddSubItem((FileInfo)file, item);
+								}
+								listViewManager.AddListViewItem(item, GetFileSystemIcon(file));
 							}
-							else  //If File
-							{
-								columns.AddSubItem((FileInfo)file, item);
-							}
-							listViewManager.AddListViewItem(item, GetFileSystemIcon(file));
+			
 						}
 						if (file.Attributes.HasFlag(FileAttributes.Directory))
 						{
